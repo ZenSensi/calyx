@@ -14,7 +14,7 @@ import {
 } from '@livekit/components-react';
 import { Track, createLocalVideoTrack, createLocalAudioTrack } from 'livekit-client';
 import { BackgroundBlur } from '@livekit/track-processors';
-import { MessageSquare, Users, Search, Mic, MicOff, Video, VideoOff, PhoneOff, Share, Share2, Copy, Check, Clock, UserCheck, UserX, Camera, CameraOff, Pin, PinOff, MoreVertical, Settings, Smile, Hand, Info, Shapes, Lock, X, UserPlus, Subtitles } from 'lucide-react';
+import { MessageSquare, Users, Search, Mic, MicOff, Video, VideoOff, PhoneOff, Share, Share2, Copy, Check, Clock, UserCheck, UserX, Camera, CameraOff, Pin, PinOff, MoreVertical, Settings, Smile, Hand, Info, Shapes, Lock, X, UserPlus, Subtitles, Send, Maximize, Trash2, ArrowLeft, Palette, Brush, Sparkles, Download, BarChart2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import './VideoCallApp.css';
 
@@ -1195,12 +1195,427 @@ const CustomVideoStage = ({
   );
 };
 
+const InfoPanel = ({ roomName, participantName }) => {
+  const [copied, setCopied] = useState(false);
+  const joinUrl = `${window.location.origin}/meeting/${roomName}`;
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(joinUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="info-panel-container">
+      <div className="info-header-card glass-panel-premium">
+        <h4>Joining Info</h4>
+        <p className="join-url-text">{joinUrl}</p>
+        <button className="btn-premium copy-info-btn" onClick={handleCopyLink}>
+          {copied ? <Check size={16} /> : <Copy size={16} />}
+          <span>{copied ? 'Copied link!' : 'Copy joining info'}</span>
+        </button>
+      </div>
+
+      <div className="info-details-list">
+        <div className="info-detail-item">
+          <span className="detail-label">Active User</span>
+          <span className="detail-value">{participantName}</span>
+        </div>
+        <div className="info-detail-item">
+          <span className="detail-label">Meeting Code</span>
+          <span className="detail-value font-mono">{roomName}</span>
+        </div>
+        <div className="info-detail-item">
+          <span className="detail-label">Security</span>
+          <span className="detail-value">Lobby Verification</span>
+        </div>
+        <div className="info-detail-item">
+          <span className="detail-label">Encryption</span>
+          <span className="detail-value">End-to-End Encrypted</span>
+        </div>
+      </div>
+
+      <div className="info-calendar-promo glass-panel">
+        <div className="promo-text-wrap">
+          <strong>Google Calendar Sync</strong>
+          <span>Add this room link to your calendar invites</span>
+        </div>
+        <span className="promo-badge">PRO</span>
+      </div>
+    </div>
+  );
+};
+
+const Whiteboard = () => {
+  const canvasRef = useRef(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [color, setColor] = useState('#6366f1');
+  const [brushSize, setBrushSize] = useState(4);
+  const [lastPos, setLastPos] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * 2;
+    canvas.height = 360 * 2;
+    ctx.scale(2, 2);
+    
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = color;
+    ctx.lineWidth = brushSize;
+    
+    // Draw grid blueprint lines
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+    ctx.lineWidth = 1;
+    const gridSpacing = 20;
+    for (let x = 0; x < rect.width; x += gridSpacing) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, 360);
+      ctx.stroke();
+    }
+    for (let y = 0; y < 360; y += gridSpacing) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(rect.width, y);
+      ctx.stroke();
+    }
+    
+    ctx.strokeStyle = color;
+    ctx.lineWidth = brushSize;
+  }, []);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.strokeStyle = color;
+    ctx.lineWidth = brushSize;
+  }, [color, brushSize]);
+
+  const getCoordinates = (e) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    const rect = canvas.getBoundingClientRect();
+    
+    if (e.touches && e.touches.length > 0) {
+      return {
+        x: e.touches[0].clientX - rect.left,
+        y: e.touches[0].clientY - rect.top
+      };
+    }
+    
+    return {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    };
+  };
+
+  const startDrawing = (e) => {
+    if (e.cancelable) e.preventDefault();
+    const pos = getCoordinates(e);
+    setIsDrawing(true);
+    setLastPos(pos);
+    
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.beginPath();
+    ctx.arc(pos.x, pos.y, brushSize / 2, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(pos.x, pos.y);
+  };
+
+  const draw = (e) => {
+    if (!isDrawing) return;
+    if (e.cancelable) e.preventDefault();
+    const pos = getCoordinates(e);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    
+    ctx.beginPath();
+    ctx.moveTo(lastPos.x, lastPos.y);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+    
+    setLastPos(pos);
+  };
+
+  const stopDrawing = () => {
+    setIsDrawing(false);
+  };
+
+  const handleClear = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.getBoundingClientRect();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+    ctx.lineWidth = 1;
+    const gridSpacing = 20;
+    for (let x = 0; x < rect.width; x += gridSpacing) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, 360);
+      ctx.stroke();
+    }
+    for (let y = 0; y < 360; y += gridSpacing) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(rect.width, y);
+      ctx.stroke();
+    }
+    
+    ctx.strokeStyle = color;
+    ctx.lineWidth = brushSize;
+  };
+
+  const handleDownload = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const link = document.createElement('a');
+    link.download = 'calyx-whiteboard.png';
+    link.href = canvas.toDataURL();
+    link.click();
+  };
+
+  return (
+    <div className="whiteboard-container">
+      <div className="wb-canvas-wrapper glass-panel">
+        <canvas
+          ref={canvasRef}
+          className="wb-canvas"
+          onMouseDown={startDrawing}
+          onMouseMove={draw}
+          onMouseUp={stopDrawing}
+          onMouseLeave={stopDrawing}
+          onTouchStart={startDrawing}
+          onTouchMove={draw}
+          onTouchEnd={stopDrawing}
+          style={{ height: '240px', width: '100%', cursor: 'crosshair', display: 'block', background: '#0a0d1a', borderRadius: '12px' }}
+        />
+      </div>
+
+      <div className="wb-controls">
+        <div className="wb-control-group">
+          <span className="wb-group-title">Colors</span>
+          <div className="wb-colors-grid">
+            {['#6366f1', '#00d2ff', '#f43f5e', '#eab308', '#22c55e', '#ffffff'].map(c => (
+              <button
+                key={c}
+                className={`color-swatch-btn ${color === c ? 'active' : ''}`}
+                style={{ backgroundColor: c }}
+                onClick={() => setColor(c)}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="wb-control-group">
+          <span className="wb-group-title">Sizes</span>
+          <div className="wb-sizes-grid">
+            {[2, 4, 8, 16].map(s => (
+              <button
+                key={s}
+                className={`size-select-btn ${brushSize === s ? 'active' : ''}`}
+                onClick={() => setBrushSize(s)}
+              >
+                <span style={{ width: `${s}px`, height: `${s}px`, borderRadius: '50%', backgroundColor: color }} />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="wb-actions-row">
+          <button className="wb-action-btn clear-btn" onClick={handleClear}>
+            <Trash2 size={14} />
+            <span>Clear</span>
+          </button>
+          <button className="wb-action-btn download-btn" onClick={handleDownload}>
+            <Download size={14} />
+            <span>Save</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const PollsSection = () => {
+  const [p1Vote, setP1Vote] = useState(null);
+  const [p1Votes, setP1Votes] = useState({ 0: 18, 1: 5, 2: 2 });
+  const p1Options = [
+    "Yes, absolutely! 🚀",
+    "Maybe, need more testing",
+    "No, keep Google Meet"
+  ];
+
+  const [p2Vote, setP2Vote] = useState(null);
+  const [p2Votes, setP2Votes] = useState({ 0: 12, 1: 8, 2: 15 });
+  const p2Options = [
+    "AI Meeting Summarizer 🧠",
+    "Custom 3D Backgrounds 🎨",
+    "Breakout Rooms & Live Translation 🌐"
+  ];
+
+  const handleVote1 = (idx) => {
+    setP1Votes(prev => {
+      const next = { ...prev };
+      if (p1Vote !== null) next[p1Vote] -= 1;
+      next[idx] += 1;
+      return next;
+    });
+    setP1Vote(idx);
+  };
+
+  const handleVote2 = (idx) => {
+    setP2Votes(prev => {
+      const next = { ...prev };
+      if (p2Vote !== null) next[p2Vote] -= 1;
+      next[idx] += 1;
+      return next;
+    });
+    setP2Vote(idx);
+  };
+
+  const renderPoll = (title, options, votes, userVote, onVote, onChangeVote) => {
+    const totalVotes = Object.values(votes).reduce((a, b) => a + b, 0);
+
+    return (
+      <div className="poll-card glass-panel">
+        <h4 className="poll-question">{title}</h4>
+        <p className="poll-meta">{totalVotes} votes • Active</p>
+        
+        {userVote === null ? (
+          <div className="poll-vote-options">
+            {options.map((opt, idx) => (
+              <button key={idx} className="poll-option-btn glass-panel" onClick={() => onVote(idx)}>
+                {opt}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="poll-results">
+            {options.map((opt, idx) => {
+              const count = votes[idx];
+              const pct = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
+              const isUserSelected = userVote === idx;
+              return (
+                <div key={idx} className={`poll-result-bar-wrap ${isUserSelected ? 'selected' : ''}`}>
+                  <div className="result-label-row">
+                    <span className="result-text">{opt} {isUserSelected && <span className="your-vote-tag">(Your vote)</span>}</span>
+                    <span className="result-pct">{pct}% ({count})</span>
+                  </div>
+                  <div className="pct-progress-bar">
+                    <div className="pct-progress-fill" style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+            <button className="change-vote-btn" onClick={onChangeVote}>Change vote</button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div className="polls-section-container">
+      {renderPoll(
+        "Should we adopt Calyx for all our engineering calls?",
+        p1Options,
+        p1Votes,
+        p1Vote,
+        handleVote1,
+        () => setP1Vote(null)
+      )}
+
+      {renderPoll(
+        "What feature should Calyx build next?",
+        p2Options,
+        p2Votes,
+        p2Vote,
+        handleVote2,
+        () => setP2Vote(null)
+      )}
+    </div>
+  );
+};
+
+const ActivitiesPanel = () => {
+  const [activeActivity, setActiveActivity] = useState(null);
+
+  if (activeActivity === 'whiteboard') {
+    return (
+      <div className="activity-wrapper">
+        <div className="activity-back-header">
+          <button className="wb-back-btn" onClick={() => setActiveActivity(null)}>
+            <ArrowLeft size={16} />
+            <span>Back to Activities</span>
+          </button>
+          <h3>Collaborative Board</h3>
+        </div>
+        <Whiteboard />
+      </div>
+    );
+  }
+
+  if (activeActivity === 'polls') {
+    return (
+      <div className="activity-wrapper">
+        <div className="activity-back-header">
+          <button className="wb-back-btn" onClick={() => setActiveActivity(null)}>
+            <ArrowLeft size={16} />
+            <span>Back to Activities</span>
+          </button>
+          <h3>Interactive Polls</h3>
+        </div>
+        <PollsSection />
+      </div>
+    );
+  }
+
+  return (
+    <div className="activities-menu-container">
+      <div className="activity-menu-card glass-panel" onClick={() => setActiveActivity('whiteboard')}>
+        <div className="activity-icon-box indigo-glow">
+          <Brush size={20} color="#6366f1" />
+        </div>
+        <div className="activity-text">
+          <strong>Whiteboard Blueprint</strong>
+          <span>Sketch and draw ideas in real-time</span>
+        </div>
+      </div>
+
+      <div className="activity-menu-card glass-panel" onClick={() => setActiveActivity('polls')}>
+        <div className="activity-icon-box teal-glow">
+          <BarChart2 size={20} color="#00d2ff" />
+        </div>
+        <div className="activity-text">
+          <strong>Interactive Polls</strong>
+          <span>Vote and view instant percentage progress bars</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Sidebar = ({ 
   isOpen, onClose, room, getMeta, 
   pinnedTrackSid, setPinnedTrackSid, 
   onAdmitParticipant, onDenyParticipant,
   messages, pinnedMessage, onSendMessage, onPinMessage,
-  activeTab, setActiveTab
+  activeTab, setActiveTab,
+  isHost, participantName, roomName
 }) => {
   const participants = useParticipants();
 
@@ -1224,12 +1639,21 @@ const Sidebar = ({
     <div className={`sidebar ${!isOpen ? 'sidebar--collapsed' : ''}`}>
       <div className="sidebar-header">
         <h2 className="sidebar-title">
-          {activeTab === 'participants' ? 'People' : activeTab === 'chat' ? 'Chat' : 'Host controls'}
+          {activeTab === 'info' ? 'Meeting Info' :
+           activeTab === 'participants' ? 'People' :
+           activeTab === 'chat' ? 'Chat' :
+           activeTab === 'activities' ? 'Activities' : 'Host controls'}
         </h2>
         <button className="sidebar-close" onClick={onClose}><X size={20} /></button>
       </div>
 
       <div className="sidebar-tabs-minimal">
+        <button 
+          className={`tab-link ${activeTab === 'info' ? 'active' : ''}`}
+          onClick={() => setActiveTab('info')}
+        >
+          Info
+        </button>
         <button 
           className={`tab-link ${activeTab === 'participants' ? 'active' : ''}`}
           onClick={() => setActiveTab('participants')}
@@ -1241,6 +1665,18 @@ const Sidebar = ({
           onClick={() => setActiveTab('chat')}
         >
           Chat
+        </button>
+        <button 
+          className={`tab-link ${activeTab === 'activities' ? 'active' : ''}`}
+          onClick={() => setActiveTab('activities')}
+        >
+          Activities
+        </button>
+        <button 
+          className={`tab-link ${activeTab === 'settings' ? 'active' : ''}`}
+          onClick={() => setActiveTab('settings')}
+        >
+          Host Controls
         </button>
       </div>
 
@@ -1389,7 +1825,7 @@ const ChatPanel = ({ messages, pinnedMessage, onSendMessage, onPinMessage, isHos
           onChange={(e) => setInput(e.target.value)}
         />
         <button type="submit" disabled={!input.trim()}>
-          <Share size={18} />
+          <Send size={18} />
         </button>
       </form>
     </div>

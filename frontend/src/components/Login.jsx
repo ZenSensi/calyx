@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LogIn, Mail, Video } from 'lucide-react';
-import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { signInWithEmailAndPassword, signInWithPopup, signInWithRedirect } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
 import './Auth.css';
 
@@ -45,10 +45,30 @@ const Login = () => {
       await signInWithPopup(auth, googleProvider);
       navigate('/');
     } catch (err) {
-      setError(err.message || 'Failed to log in with Google.');
-      console.error(err);
-    } finally {
-      setIsLoading(false);
+      console.error('Google popup sign-in error:', err);
+      // Fallback for pop-up blockers or COOP restrictions
+      if (
+        err.code === 'auth/popup-blocked' ||
+        err.code === 'auth/popup-closed-by-user' ||
+        err.code === 'auth/cross-origin-opener-policy-blocked' ||
+        err.message?.includes('popup') ||
+        err.message?.includes('Cross-Origin-Opener-Policy')
+      ) {
+        try {
+          setError('Popup blocked or blocked by browser settings. Redirecting to Google...');
+          await signInWithRedirect(auth, googleProvider);
+        } catch (redirectErr) {
+          setError('Failed to redirect for Google Sign-in: ' + redirectErr.message);
+          console.error(redirectErr);
+          setIsLoading(false);
+        }
+      } else if (err.code === 'auth/unauthorized-domain') {
+        setError('Google Login Error: This domain is not authorized. Please add this URL to the Authorized Domains list in your Firebase Authentication settings.');
+        setIsLoading(false);
+      } else {
+        setError(err.message || 'Failed to log in with Google.');
+        setIsLoading(false);
+      }
     }
   };
 
@@ -67,8 +87,7 @@ const Login = () => {
 
         <button
           onClick={handleGoogleSignIn}
-          className="btn-glass"
-          style={{ width: '100%', marginBottom: '16px', gap: '12px' }}
+          className="google-btn"
           disabled={isLoading}
         >
           <GoogleIcon /> Continue with Google
@@ -81,8 +100,7 @@ const Login = () => {
         {!showEmailAuth ? (
           <button
             onClick={() => setShowEmailAuth(true)}
-            className="btn-glass"
-            style={{ width: '100%', gap: '12px' }}
+            className="email-btn"
           >
             <Mail size={18} /> Continue with Email
           </button>

@@ -82,7 +82,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(var(--text-rgb), 0.05);
   padding: 6px 6px 6px 16px;
   border-radius: 100px;
   border: 1px solid var(--border-color);
@@ -110,7 +110,7 @@
   font-weight: 600;
   font-size: 14px;
   overflow: hidden;
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(var(--text-rgb), 0.1);
 }
 
 .user-avatar-small img {
@@ -225,7 +225,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(var(--text-rgb), 0.05);
   padding: 0 16px;
   border-radius: 12px;
   border: 1px solid var(--border-color);
@@ -457,5 +457,14 @@
   }
   .stat-item {
     align-items: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-content {
+    padding: 30px 20px;
+  }
+  .modal-title {
+    font-size: 24px;
   }
 }

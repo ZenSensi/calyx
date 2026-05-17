@@ -128,7 +128,7 @@
 }
 
 .feedback-btn:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(var(--text-rgb), 0.05);
   border-color: var(--text-secondary);
   color: var(--text-primary);
   transform: translateY(-4px) scale(1.1);

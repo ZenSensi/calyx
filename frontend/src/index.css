@@ -1,24 +1,27 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Unique Calyx Color Palette - Modern & Premium */
-  --primary-indigo: #6366f1;
-  --primary-indigo-hover: #4f46e5;
-  --accent-teal: #00d2ff;
-  --accent-indigo-glow: rgba(99, 102, 241, 0.2);
+  /* Unique Calyx Color Palette - Modern & Premium Light Theme */
+  --primary-indigo: #4f46e5;
+  --primary-indigo-hover: #4338ca;
+  --accent-teal: #0891b2;
+  --accent-indigo-glow: rgba(79, 70, 229, 0.15);
 
-  --bg-dark: #070912;
-  --bg-panel: rgba(17, 21, 35, 0.7);
-  --bg-panel-light: rgba(255, 255, 255, 0.03);
+  --bg-dark: #f8fafc;
+  --bg-panel: rgba(255, 255, 255, 0.85);
+  --bg-panel-light: rgba(var(--text-rgb), 0.03);
 
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --border-color: rgba(255, 255, 255, 0.1);
-  --accent-red: #f43f5e;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --border-color: rgba(var(--text-rgb), 0.1);
+  --accent-red: #ef4444;
 
-  --glass-bg: rgba(15, 23, 42, 0.6);
-  --glass-blur: blur(16px);
-  --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-blur: blur(20px);
+  --glass-border: 1px solid rgba(var(--text-rgb), 0.1);
+
+  --text-rgb: 0, 0, 0;
+  --bg-rgb: 255, 255, 255;
 
   --border-radius-lg: 32px;
   --border-radius-md: 20px;
@@ -31,16 +34,36 @@
   --google-blue-hover: var(--primary-indigo-hover);
 }
 
-:root.light-theme {
-  --bg-dark: #ffffff;
-  --bg-panel: #ffffff;
-  --bg-panel-light: #f1f3f4;
-  --text-primary: #202124;
-  --text-secondary: #5f6368;
-  --accent-teal: #00796b;
-  --accent-red: #d93025;
-  --google-blue: #1a73e8;
-  --border-color: #dadce0;
+:root.dark-theme {
+  --primary-indigo: #6366f1;
+  --primary-indigo-hover: #4f46e5;
+  --accent-teal: #00d2ff;
+  --accent-indigo-glow: rgba(99, 102, 241, 0.2);
+
+  --bg-dark: #070912;
+  --bg-panel: rgba(17, 21, 35, 0.7);
+  --bg-panel-light: rgba(var(--text-rgb), 0.03);
+
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --border-color: rgba(var(--text-rgb), 0.1);
+  --accent-red: #f43f5e;
+
+  --glass-bg: rgba(15, 23, 42, 0.6);
+  --glass-blur: blur(16px);
+  --glass-border: 1px solid rgba(var(--text-rgb), 0.1);
+
+  --text-rgb: 255, 255, 255;
+  --bg-rgb: 0, 0, 0;
+
+  --border-radius-lg: 32px;
+  --border-radius-md: 20px;
+  --border-radius-sm: 12px;
+
+  --font-family: 'Outfit', 'Inter', -apple-system, sans-serif;
+
+  --google-blue: var(--primary-indigo);
+  --google-blue-hover: var(--primary-indigo-hover);
 }
 
 * {
@@ -99,7 +122,7 @@ button,
   font-weight: 600;
   font-size: 15px;
   box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(var(--text-rgb), 0.1);
 }
 
 .btn-premium:hover {
@@ -109,17 +132,17 @@ button,
 }
 
 .btn-glass {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(var(--text-rgb), 0.05);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(var(--text-rgb), 0.1);
   color: var(--text-primary);
   padding: 12px 24px;
   font-weight: 500;
 }
 
 .btn-glass:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(var(--text-rgb), 0.08);
+  border-color: rgba(var(--text-rgb), 0.2);
   transform: translateY(-2px);
 }
 
@@ -127,8 +150,8 @@ button,
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(var(--text-rgb), 0.05);
+  border: 1px solid rgba(var(--text-rgb), 0.05);
   color: #fff;
 }
 
@@ -160,11 +183,11 @@ button,
   background: rgba(30, 32, 43, 0.7);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(var(--text-rgb), 0.05);
 }
 
 .light-theme .glass-panel {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(var(--text-rgb), 0.7);
   border: 1px solid rgba(0, 0, 0, 0.1);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
