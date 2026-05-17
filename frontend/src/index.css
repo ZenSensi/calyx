@@ -1,0 +1,183 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Unique Calyx Color Palette - Modern & Premium */
+  --primary-indigo: #6366f1;
+  --primary-indigo-hover: #4f46e5;
+  --accent-teal: #00d2ff;
+  --accent-indigo-glow: rgba(99, 102, 241, 0.2);
+  
+  --bg-dark: #070912;
+  --bg-panel: rgba(17, 21, 35, 0.7);
+  --bg-panel-light: rgba(255, 255, 255, 0.03);
+  
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --accent-red: #f43f5e;
+  
+  --glass-bg: rgba(15, 23, 42, 0.6);
+  --glass-blur: blur(16px);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+  
+  --border-radius-lg: 32px;
+  --border-radius-md: 20px;
+  --border-radius-sm: 12px;
+  
+  --font-family: 'Outfit', 'Inter', -apple-system, sans-serif;
+  
+  --google-blue: var(--primary-indigo); /* Compatibility Alias */
+  --google-blue-hover: var(--primary-indigo-hover);
+}
+
+:root.light-theme {
+  --bg-dark: #ffffff;
+  --bg-panel: #ffffff;
+  --bg-panel-light: #f1f3f4;
+  --text-primary: #202124;
+  --text-secondary: #5f6368;
+  --accent-teal: #00796b;
+  --accent-red: #d93025;
+  --google-blue: #1a73e8;
+  --border-color: #dadce0;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  body {
+    overflow-y: auto;
+    height: auto;
+    min-height: 100vh;
+  }
+  /* The meeting room manages its own overflow */
+  body:has(.zoom-app-container) {
+    overflow: hidden;
+    height: 100vh;
+  }
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+/* ── Premium Button System ────────────────────────────────────────────────── */
+button, .btn {
+  font-family: var(--font-family);
+  cursor: pointer;
+  border: none;
+  background: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 12px;
+}
+
+.btn-premium {
+  background: var(--primary-indigo);
+  color: #fff;
+  padding: 12px 28px;
+  font-weight: 600;
+  font-size: 15px;
+  box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-premium:hover {
+  background: var(--primary-indigo-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px -5px rgba(99, 102, 241, 0.5);
+}
+
+.btn-glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  padding: 12px 24px;
+  font-weight: 500;
+}
+
+.btn-glass:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.btn-icon-pill {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.btn-icon-pill:hover {
+  background: var(--primary-indigo);
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+}
+
+.btn-danger {
+  background: var(--accent-red);
+  color: #fff;
+  padding: 12px 28px;
+  font-weight: 600;
+}
+
+.btn-danger:hover {
+  background: #ff4d6d;
+  box-shadow: 0 10px 20px -5px rgba(244, 63, 94, 0.4);
+  transform: translateY(-2px);
+}
+
+/* ── Global Transitions ── */
+.hover-glow:hover {
+  box-shadow: 0 0 20px var(--accent-indigo-glow);
+}
+
+.glass-panel {
+  background: rgba(30, 32, 43, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.light-theme .glass-panel {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bg-panel-light);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
