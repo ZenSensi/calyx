@@ -1833,11 +1833,45 @@ const ChatPanel = ({ messages, pinnedMessage, onSendMessage, onPinMessage, isHos
 };
 
 const HostSettings = ({ room }) => {
+  const [theme, setTheme] = useState(localStorage.getItem('calyx-theme') || 'light');
+
+  const handleThemeChange = (e) => {
+    const newTheme = e.target.value;
+    setTheme(newTheme);
+    if (newTheme === 'dark') {
+      document.documentElement.classList.add('dark-theme');
+    } else {
+      document.documentElement.classList.remove('dark-theme');
+    }
+    localStorage.setItem('calyx-theme', newTheme);
+  };
+
   return (
     <div className="host-settings">
-      <h3>Host Controls</h3>
-      <p className="settings-desc">Use these settings to keep control of your meeting.</p>
+      <h3>Meeting Settings</h3>
+      <p className="settings-desc">Manage your meeting preferences and controls.</p>
       
+      <div className="settings-toggle">
+        <div className="toggle-info">
+          <strong>Visual Theme</strong>
+          <span>Toggle between Light and Dark mode</span>
+        </div>
+        <select 
+          value={theme}
+          onChange={handleThemeChange}
+          style={{
+            padding: '6px 10px',
+            borderRadius: '6px',
+            background: 'var(--bg-panel-light)',
+            color: 'var(--text-primary)',
+            border: '1px solid var(--border-color)'
+          }}
+        >
+          <option value="light">Light Mode</option>
+          <option value="dark">Dark Mode</option>
+        </select>
+      </div>
+
       <div className="settings-toggle">
         <div className="toggle-info">
           <strong>Share their screen</strong>

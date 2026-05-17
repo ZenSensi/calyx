@@ -41,6 +41,15 @@ const PublicOnlyRoute = ({ children }) => {
 };
 
 function App() {
+  React.useEffect(() => {
+    const savedTheme = localStorage.getItem('calyx-theme') || 'light';
+    if (savedTheme === 'dark') {
+      document.documentElement.classList.add('dark-theme');
+    } else {
+      document.documentElement.classList.remove('dark-theme');
+    }
+  }, []);
+
   return (
     <ErrorBoundary>
       <AuthProvider>

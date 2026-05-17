@@ -25,7 +25,7 @@ const RoomConnection = () => {
   const [scheduleData, setScheduleData] = useState({ title: '', date: '', time: '', duration: '30m' });
   const [scheduledLink, setScheduledLink] = useState('');
   const [laterLink, setLaterLink] = useState('');
-  const [settingsData, setSettingsData] = useState({ displayName: '', quality: '1080p', theme: 'dark' });
+  const [settingsData, setSettingsData] = useState({ displayName: '', quality: '1080p', theme: localStorage.getItem('calyx-theme') || 'light' });
   const [faqOpenIndex, setFaqOpenIndex] = useState(null);
   const [toastMessage, setToastMessage] = useState('');
   const [copiedLink, setCopiedLink] = useState(false);
@@ -106,6 +106,15 @@ const RoomConnection = () => {
     if (settingsData.displayName.trim()) {
       setParticipantName(settingsData.displayName);
     }
+    
+    // Apply Theme
+    if (settingsData.theme === 'dark') {
+      document.documentElement.classList.add('dark-theme');
+    } else {
+      document.documentElement.classList.remove('dark-theme');
+    }
+    localStorage.setItem('calyx-theme', settingsData.theme);
+
     showToast('Preferences updated successfully!');
     setShowSettingsModal(false);
   };
@@ -161,7 +170,7 @@ const RoomConnection = () => {
               <MessageSquare size={20} />
             </button>
             <button className="nav-icon-btn" onClick={() => {
-              setSettingsData({ displayName: participantName, quality: '1080p', theme: 'dark' });
+              setSettingsData({ displayName: participantName, quality: '1080p', theme: localStorage.getItem('calyx-theme') || 'light' });
               setShowSettingsModal(true);
             }} title="Preferences">
               <Settings size={20} />
@@ -433,13 +442,13 @@ const RoomConnection = () => {
                   </select>
                 </div>
                 <div className="form-group">
-                  <label>Visual Interface Accent</label>
+                  <label>Visual Interface Theme</label>
                   <select 
                     value={settingsData.theme}
                     onChange={(e) => setSettingsData({ ...settingsData, theme: e.target.value })}
                   >
-                    <option value="dark">Vibrant Cyber Dark Theme</option>
-                    <option value="light">Classic Clean Slate</option>
+                    <option value="light">Light Mode</option>
+                    <option value="dark">Dark Mode</option>
                   </select>
                 </div>
                 <div className="modal-tips">
