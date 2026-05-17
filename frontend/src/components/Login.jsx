@@ -45,7 +45,7 @@ const Login = () => {
       await signInWithPopup(auth, googleProvider);
       navigate('/');
     } catch (err) {
-      setError('Failed to log in with Google.');
+      setError(err.message || 'Failed to log in with Google.');
       console.error(err);
     } finally {
       setIsLoading(false);

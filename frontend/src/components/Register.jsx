@@ -55,7 +55,7 @@ const Register = () => {
       await signInWithPopup(auth, googleProvider);
       navigate('/');
     } catch (err) {
-      setError('Failed to sign up with Google.');
+      setError(err.message || 'Failed to sign up with Google.');
       console.error(err);
     } finally {
       setIsLoading(false);
