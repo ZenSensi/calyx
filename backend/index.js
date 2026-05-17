@@ -56,9 +56,9 @@ app.post('/api/admitParticipant', async (req, res) => {
   try {
     // 1. Update metadata
     await svc.updateParticipant(roomName, identity, JSON.stringify({ isWaiting: false, isHost: false }));
-    
+
     // 2. Update permissions to allow publishing
-    await svc.updateSubscriptions(roomName, identity, [], true); 
+    await svc.updateSubscriptions(roomName, identity, [], true);
     // Wait, updateSubscriptions is for subscribing. To update publishing permissions, we use updateParticipant permissions.
     await svc.updateParticipant(roomName, identity, undefined, {
       canPublish: true,
@@ -85,6 +85,11 @@ app.post('/api/denyParticipant', async (req, res) => {
     console.error('Error denying participant:', error);
     res.status(500).json({ error: 'Failed to deny participant' });
   }
+});
+
+// Health Check endpoint for Render deployment
+app.get('/healthz', (req, res) => {
+  res.status(200).send('OK');
 });
 
 app.listen(port, () => {
