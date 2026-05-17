@@ -174,3 +174,52 @@
   border-radius: 100px;
   border: 1px solid var(--border-color);
 }
+
+@media (max-width: 768px) {
+  .over-content {
+    padding: 40px 24px;
+    border-radius: 24px;
+    max-width: 100%;
+  }
+  .over-logo {
+    margin-bottom: 24px;
+  }
+  .over-title {
+    font-size: 28px;
+    margin-bottom: 24px;
+  }
+  .over-actions {
+    margin-bottom: 40px;
+    gap: 12px;
+  }
+  .btn-rejoin, .btn-home {
+    padding: 14px;
+    font-size: 15px;
+  }
+  .over-feedback {
+    padding-top: 24px;
+  }
+  .feedback-icons {
+    gap: 20px;
+  }
+  .feedback-btn {
+    width: 46px;
+    height: 46px;
+  }
+  .over-footer {
+    margin-top: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .over-content {
+    padding: 32px 16px;
+    border-radius: 20px;
+  }
+  .over-title {
+    font-size: 24px;
+  }
+  .feedback-icons {
+    gap: 16px;
+  }
+}

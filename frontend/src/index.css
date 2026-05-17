@@ -6,27 +6,28 @@
   --primary-indigo-hover: #4f46e5;
   --accent-teal: #00d2ff;
   --accent-indigo-glow: rgba(99, 102, 241, 0.2);
-  
+
   --bg-dark: #070912;
   --bg-panel: rgba(17, 21, 35, 0.7);
   --bg-panel-light: rgba(255, 255, 255, 0.03);
-  
+
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
   --border-color: rgba(255, 255, 255, 0.1);
   --accent-red: #f43f5e;
-  
+
   --glass-bg: rgba(15, 23, 42, 0.6);
   --glass-blur: blur(16px);
   --glass-border: 1px solid rgba(255, 255, 255, 0.1);
-  
+
   --border-radius-lg: 32px;
   --border-radius-md: 20px;
   --border-radius-sm: 12px;
-  
+
   --font-family: 'Outfit', 'Inter', -apple-system, sans-serif;
-  
-  --google-blue: var(--primary-indigo); /* Compatibility Alias */
+
+  --google-blue: var(--primary-indigo);
+  /* Compatibility Alias */
   --google-blue-hover: var(--primary-indigo-hover);
 }
 
@@ -63,6 +64,7 @@ body {
     height: auto;
     min-height: 100vh;
   }
+
   /* The meeting room manages its own overflow */
   body:has(.zoom-app-container) {
     overflow: hidden;
@@ -76,7 +78,8 @@ body {
 }
 
 /* ── Premium Button System ────────────────────────────────────────────────── */
-button, .btn {
+button,
+.btn {
   font-family: var(--font-family);
   cursor: pointer;
   border: none;
@@ -171,13 +174,16 @@ button, .btn {
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--bg-panel-light);
   border-radius: 4px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-secondary);
 }
