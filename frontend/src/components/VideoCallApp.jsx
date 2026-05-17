@@ -279,7 +279,7 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
   const handleAdmit = useCallback(async (identity) => {
     console.log(`[MeetingRoom] Admitting ${identity} via backend...`);
     try {
-      await fetch('http://localhost:3000/api/admitParticipant', {
+      await fetch(`${import.meta.env.VITE_API_URL}/admitParticipant`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ roomName, identity })
@@ -296,7 +296,7 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
   const handleDeny = useCallback(async (identity) => {
     console.log(`[MeetingRoom] Denying ${identity} via backend...`);
     try {
-      await fetch('http://localhost:3000/api/denyParticipant', {
+      await fetch(`${import.meta.env.VITE_API_URL}/denyParticipant`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ roomName, identity })

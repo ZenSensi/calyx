@@ -140,4 +140,4 @@ We use a premium, dark-mode-first aesthetic with a carefully chosen palette:
 
 ---
 
-*Calyx Meet is pair-programmed with ❤️ by Antigravity AI.*
+*Calyx Meet is developed ❤️ by Arnabh aka Zensensi.*
