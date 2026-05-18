@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { LogIn, Mail, Video } from 'lucide-react';
 import { signInWithEmailAndPassword, signInWithPopup, signInWithRedirect } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
+import Footer from './Footer';
 import './Auth.css';
 
 const GoogleIcon = () => (
@@ -74,72 +75,75 @@ const Login = () => {
 
   return (
     <div className="auth-container">
-      <div className="auth-card shadow-sm">
-        <div className="auth-header">
-          <div className="auth-icon">
-            <Video size={28} color="#1a73e8" fill="#1a73e8" />
+      <div className="auth-wrapper">
+        <div className="auth-card shadow-sm">
+          <div className="auth-header">
+            <div className="auth-icon">
+              <Video size={28} color="#1a73e8" fill="#1a73e8" />
+            </div>
+            <h1>Sign in</h1>
+            <p>to continue to Calyx Meet</p>
           </div>
-          <h1>Sign in</h1>
-          <p>to continue to Calyx Meet</p>
-        </div>
 
-        {error && <div className="auth-error">{error}</div>}
+          {error && <div className="auth-error">{error}</div>}
 
-        <button
-          onClick={handleGoogleSignIn}
-          className="google-btn"
-          disabled={isLoading}
-        >
-          <GoogleIcon /> Continue with Google
-        </button>
-
-        <div className="auth-divider">
-          <span>or</span>
-        </div>
-
-        {!showEmailAuth ? (
           <button
-            onClick={() => setShowEmailAuth(true)}
-            className="email-btn"
+            onClick={handleGoogleSignIn}
+            className="google-btn"
+            disabled={isLoading}
           >
-            <Mail size={18} /> Continue with Email
+            <GoogleIcon /> Continue with Google
           </button>
-        ) : (
-          <form onSubmit={handleLogin} className="auth-form fade-in">
-            <div className="form-group">
-              <label htmlFor="email">Email</label>
-              <input
-                type="email"
-                id="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
 
-            <div className="form-group">
-              <label htmlFor="password">Password</label>
-              <input
-                type="password"
-                id="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
+          <div className="auth-divider">
+            <span>or</span>
+          </div>
 
-            <button type="submit" className="btn-premium" style={{ width: '100%', marginTop: '8px' }} disabled={isLoading}>
-              {isLoading ? 'Signing In...' : 'Sign In'}
+          {!showEmailAuth ? (
+            <button
+              onClick={() => setShowEmailAuth(true)}
+              className="email-btn"
+            >
+              <Mail size={18} /> Continue with Email
             </button>
-          </form>
-        )}
+          ) : (
+            <form onSubmit={handleLogin} className="auth-form fade-in">
+              <div className="form-group">
+                <label htmlFor="email">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
 
-        <div className="auth-footer">
-          Don't have an account? <Link to="/register" className="auth-link">Sign up</Link>
+              <div className="form-group">
+                <label htmlFor="password">Password</label>
+                <input
+                  type="password"
+                  id="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+
+              <button type="submit" className="btn-premium" style={{ width: '100%', marginTop: '8px' }} disabled={isLoading}>
+                {isLoading ? 'Signing In...' : 'Sign In'}
+              </button>
+            </form>
+          )}
+
+          <div className="auth-footer">
+            Don't have an account? <Link to="/register" className="auth-link">Sign up</Link>
+          </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

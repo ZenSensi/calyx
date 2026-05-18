@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { UserPlus, Mail, Video } from 'lucide-react';
 import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, signInWithRedirect } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
+import Footer from './Footer';
 import './Auth.css';
 
 const GoogleIcon = () => (
@@ -84,98 +85,101 @@ const Register = () => {
 
   return (
     <div className="auth-container">
-      <div className="auth-card shadow-sm">
-        <div className="auth-header">
-          <div className="auth-icon">
-            <Video size={28} color="#1a73e8" fill="#1a73e8" />
+      <div className="auth-wrapper">
+        <div className="auth-card shadow-sm">
+          <div className="auth-header">
+            <div className="auth-icon">
+              <Video size={28} color="#1a73e8" fill="#1a73e8" />
+            </div>
+            <h1>Create your account</h1>
+            <p>Join Calyx Meet for free</p>
           </div>
-          <h1>Create your account</h1>
-          <p>Join Calyx Meet for free</p>
-        </div>
 
-        {error && <div className="auth-error">{error}</div>}
+          {error && <div className="auth-error">{error}</div>}
 
-        <button
-          onClick={handleGoogleSignIn}
-          className="google-btn"
-          disabled={isLoading}
-        >
-          <GoogleIcon /> Sign up with Google
-        </button>
-
-        <div className="auth-divider">
-          <span>or</span>
-        </div>
-
-        {!showEmailAuth ? (
           <button
-            onClick={() => setShowEmailAuth(true)}
-            className="email-btn"
+            onClick={handleGoogleSignIn}
+            className="google-btn"
+            disabled={isLoading}
           >
-            <Mail size={18} /> Sign up with email
+            <GoogleIcon /> Sign up with Google
           </button>
-        ) : (
-          <form onSubmit={handleRegister} className="auth-form fade-in">
-            <div className="form-group">
-              <label htmlFor="name">Full name</label>
-              <input
-                type="text"
-                id="name"
-                placeholder="John Doe"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-            </div>
 
-            <div className="form-group">
-              <label htmlFor="email">Email address</label>
-              <input
-                type="email"
-                id="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
+          <div className="auth-divider">
+            <span>or</span>
+          </div>
 
-            <div className="form-group">
-              <label htmlFor="password">Password</label>
-              <input
-                type="password"
-                id="password"
-                placeholder="Create a password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="confirmPassword">Confirm password</label>
-              <input
-                type="password"
-                id="confirmPassword"
-                placeholder="Confirm your password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                minLength={6}
-              />
-            </div>
-
-            <button type="submit" className="btn-premium" style={{ width: '100%', marginTop: '8px' }} disabled={isLoading}>
-              {isLoading ? 'Creating account...' : 'Create account'}
+          {!showEmailAuth ? (
+            <button
+              onClick={() => setShowEmailAuth(true)}
+              className="email-btn"
+            >
+              <Mail size={18} /> Sign up with email
             </button>
-          </form>
-        )}
+          ) : (
+            <form onSubmit={handleRegister} className="auth-form fade-in">
+              <div className="form-group">
+                <label htmlFor="name">Full name</label>
+                <input
+                  type="text"
+                  id="name"
+                  placeholder="John Doe"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </div>
 
-        <div className="auth-footer">
-          Already have an account? <Link to="/login" className="auth-link">Log in</Link>
+              <div className="form-group">
+                <label htmlFor="email">Email address</label>
+                <input
+                  type="email"
+                  id="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="password">Password</label>
+                <input
+                  type="password"
+                  id="password"
+                  placeholder="Create a password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={6}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="confirmPassword">Confirm password</label>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  placeholder="Confirm your password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  minLength={6}
+                />
+              </div>
+
+              <button type="submit" className="btn-premium" style={{ width: '100%', marginTop: '8px' }} disabled={isLoading}>
+                {isLoading ? 'Creating account...' : 'Create account'}
+              </button>
+            </form>
+          )}
+
+          <div className="auth-footer">
+            Already have an account? <Link to="/login" className="auth-link">Log in</Link>
+          </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

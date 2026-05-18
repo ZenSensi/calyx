@@ -1,9 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Video, Plus, Calendar, LogOut, Link, Keyboard, MoreVertical, Settings, HelpCircle, MessageSquare, X, Check, Copy, ChevronDown, ChevronUp, Bell, Globe, Shield, Zap } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from './ui/interfaces-dropdown-menu';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
+import Footer from './Footer';
 import './RoomConnection.css';
 
 const RoomConnection = () => {
@@ -169,12 +181,53 @@ const RoomConnection = () => {
             <button className="nav-icon-btn" onClick={() => setShowNotificationsModal(true)} title="What's New">
               <MessageSquare size={20} />
             </button>
-            <button className="nav-icon-btn" onClick={() => {
-              setSettingsData({ displayName: participantName, quality: '1080p', theme: localStorage.getItem('calyx-theme') || 'light' });
-              setShowSettingsModal(true);
-            }} title="Preferences">
-              <Settings size={20} />
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="nav-icon-btn" title="Preferences">
+                  <Settings size={20} />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56" style={{ background: 'var(--bg-panel)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', zIndex: 100, minWidth: '200px' }}>
+                <DropdownMenuLabel style={{ padding: '8px 12px', fontSize: '14px', fontWeight: 'bold' }}>Preferences</DropdownMenuLabel>
+                <DropdownMenuSeparator style={{ background: 'var(--border-color)', height: '1px', margin: '4px 0' }} />
+                
+                <DropdownMenuItem 
+                  style={{ padding: '8px 12px', fontSize: '14px', cursor: 'pointer' }}
+                  onClick={() => {
+                    setSettingsData({ displayName: participantName, quality: '1080p', theme: localStorage.getItem('calyx-theme') || 'light' });
+                    setShowSettingsModal(true);
+                  }}
+                >
+                  General Settings
+                </DropdownMenuItem>
+
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger style={{ padding: '8px 12px', fontSize: '14px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    Theme
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent style={{ background: 'var(--bg-panel)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', minWidth: '150px' }}>
+                    <DropdownMenuItem 
+                      style={{ padding: '8px 12px', fontSize: '14px', cursor: 'pointer' }}
+                      onClick={() => {
+                        document.documentElement.classList.remove('dark-theme');
+                        localStorage.setItem('calyx-theme', 'light');
+                      }}
+                    >
+                      Light Mode
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      style={{ padding: '8px 12px', fontSize: '14px', cursor: 'pointer' }}
+                      onClick={() => {
+                        document.documentElement.classList.add('dark-theme');
+                        localStorage.setItem('calyx-theme', 'dark');
+                      }}
+                    >
+                      Dark Mode
+                    </DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
           <div className="user-section" title={currentUser?.email}>
             <button className="logout-btn" onClick={handleLogout} title="Sign Out">
@@ -558,6 +611,8 @@ const RoomConnection = () => {
           <span>{toastMessage}</span>
         </div>
       )}
+
+      <Footer />
     </div>
   );
 };
