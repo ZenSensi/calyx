@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Video, Plus, Calendar, LogOut, Link, Keyboard, MoreVertical, Settings, HelpCircle, MessageSquare, X, Check, Copy, ChevronDown, ChevronUp, Bell, Globe, Shield, Zap } from 'lucide-react';
+import { Video, Plus, Calendar, LogOut, Link, Keyboard, MoreVertical, Settings, HelpCircle, MessageSquare, X, Check, Copy, ChevronDown, ChevronUp, Bell, Globe, Shield, Zap, Sparkles, Mic, MicOff, VideoOff, Monitor, ShieldAlert, Layers, Trash2 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,7 +15,6 @@ import {
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
-import Footer from './Footer';
 import './RoomConnection.css';
 
 const RoomConnection = () => {
@@ -36,11 +35,119 @@ const RoomConnection = () => {
   // Form & Action states
   const [scheduleData, setScheduleData] = useState({ title: '', date: '', time: '', duration: '30m' });
   const [scheduledLink, setScheduledLink] = useState('');
+  const [googleCalLink, setGoogleCalLink] = useState('');
+  const [scheduledMeetings, setScheduledMeetings] = useState(() => {
+    try {
+      const saved = localStorage.getItem('calyx-scheduled-meetings');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const [laterLink, setLaterLink] = useState('');
   const [settingsData, setSettingsData] = useState({ displayName: '', quality: '1080p', theme: localStorage.getItem('calyx-theme') || 'light' });
   const [faqOpenIndex, setFaqOpenIndex] = useState(null);
   const [toastMessage, setToastMessage] = useState('');
   const [copiedLink, setCopiedLink] = useState(false);
+
+  // Camera & Microphone preview states
+  const [isCameraOn, setIsCameraOn] = useState(false);
+  const [isMicOn, setIsMicOn] = useState(false);
+  const [cameraDevices, setCameraDevices] = useState([]);
+  const [micDevices, setMicDevices] = useState([]);
+  const [selectedCamera, setSelectedCamera] = useState('');
+  const [selectedMic, setSelectedMic] = useState('');
+  const localVideoRef = useRef(null);
+  const localStreamRef = useRef(null);
+
+  useEffect(() => {
+    const getDevices = async () => {
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const video = devices.filter(d => d.kind === 'videoinput');
+        const audio = devices.filter(d => d.kind === 'audioinput');
+        setCameraDevices(video);
+        setMicDevices(audio);
+        if (video.length > 0) setSelectedCamera(video[0].deviceId);
+        if (audio.length > 0) setSelectedMic(audio[0].deviceId);
+      } catch (err) {
+        console.warn('Could not enumerate devices:', err);
+      }
+    };
+    getDevices();
+  }, []);
+
+  // Manage Video Stream Lifecycle & Ref Assignment Reactively
+  useEffect(() => {
+    let active = true;
+
+    const startCamera = async () => {
+      // If camera is toggled OFF, stop tracks and clean up
+      if (!isCameraOn) {
+        if (localStreamRef.current) {
+          localStreamRef.current.getTracks().forEach(track => track.stop());
+          localStreamRef.current = null;
+        }
+        return;
+      }
+
+      // If camera is toggled ON, request stream
+      try {
+        // Stop any existing tracks first
+        if (localStreamRef.current) {
+          localStreamRef.current.getTracks().forEach(track => track.stop());
+        }
+
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: selectedCamera ? { deviceId: selectedCamera } : true,
+          audio: false
+        });
+
+        if (!active) {
+          stream.getTracks().forEach(track => track.stop());
+          return;
+        }
+
+        localStreamRef.current = stream;
+        
+        // Wait a microtask to make sure React has mounted the <video> element
+        setTimeout(() => {
+          if (localVideoRef.current && stream) {
+            localVideoRef.current.srcObject = stream;
+          }
+        }, 80);
+
+      } catch (err) {
+        console.error('Error starting video preview:', err);
+        setIsCameraOn(false);
+        showToast('Camera access denied or hardware busy.');
+      }
+    };
+
+    startCamera();
+
+    return () => {
+      active = false;
+    };
+  }, [isCameraOn, selectedCamera]);
+
+  const toggleCamera = () => {
+    setIsCameraOn(prev => !prev);
+  };
+
+  const toggleMic = () => {
+    setIsMicOn(!isMicOn);
+    showToast(isMicOn ? 'Microphone muted' : 'Microphone active');
+  };
+
+  // Clean up streams on unmount
+  useEffect(() => {
+    return () => {
+      if (localStreamRef.current) {
+        localStreamRef.current.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (currentUser?.displayName) {
@@ -65,6 +172,8 @@ const RoomConnection = () => {
 
   const handleInstantMeeting = () => {
     const randomRoomId = Math.random().toString(36).substring(2, 11);
+    localStorage.setItem('last-room-name', randomRoomId);
+    localStorage.setItem('last-participant-name', participantName);
     navigate(`/room/${randomRoomId}?name=${encodeURIComponent(participantName)}&isHost=true`);
   };
 
@@ -76,6 +185,8 @@ const RoomConnection = () => {
       if (roomName.includes('/room/')) {
         code = roomName.split('/room/')[1]?.split('?')[0] || roomName;
       }
+      localStorage.setItem('last-room-name', code);
+      localStorage.setItem('last-participant-name', participantName);
       navigate(`/room/${code}?name=${encodeURIComponent(participantName)}`);
     }
   };
@@ -108,9 +219,58 @@ const RoomConnection = () => {
     e.preventDefault();
     const randomId = Math.random().toString(36).substring(2, 11);
     const link = `${window.location.origin}/room/${randomId}`;
+    
+    // Parse start date & calculate end date
+    const localDateTime = new Date(`${scheduleData.date}T${scheduleData.time}`);
+    const formatGoogleDate = (date) => {
+      try {
+        return date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+      } catch (err) {
+        return new Date().toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+      }
+    };
+    
+    let endDateTime = new Date(localDateTime);
+    if (scheduleData.duration === '15m') {
+      endDateTime.setMinutes(endDateTime.getMinutes() + 15);
+    } else if (scheduleData.duration === '30m') {
+      endDateTime.setMinutes(endDateTime.getMinutes() + 30);
+    } else if (scheduleData.duration === '1h') {
+      endDateTime.setHours(endDateTime.getHours() + 1);
+    } else {
+      endDateTime.setHours(endDateTime.getHours() + 2); // Default 2 hours for unlimited
+    }
+    
+    const datesStr = `${formatGoogleDate(localDateTime)}/${formatGoogleDate(endDateTime)}`;
+    const gCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('Calyx Meet: ' + scheduleData.title)}&dates=${datesStr}&details=${encodeURIComponent('Join secure video room: ' + link)}&location=${encodeURIComponent(link)}`;
+    
     setScheduledLink(link);
+    setGoogleCalLink(gCalUrl);
     setCopiedLink(false);
+    
+    // Append to scheduled list
+    const newMeeting = {
+      id: randomId,
+      title: scheduleData.title || 'Calyx Sync',
+      date: scheduleData.date,
+      time: scheduleData.time,
+      duration: scheduleData.duration,
+      link: link,
+      gCalUrl: gCalUrl
+    };
+    
+    const updated = [newMeeting, ...scheduledMeetings];
+    setScheduledMeetings(updated);
+    localStorage.setItem('calyx-scheduled-meetings', JSON.stringify(updated));
+    
     showToast('Meeting successfully scheduled!');
+  };
+
+  const handleDeleteMeeting = (id) => {
+    const updated = scheduledMeetings.filter(m => m.id !== id);
+    setScheduledMeetings(updated);
+    localStorage.setItem('calyx-scheduled-meetings', JSON.stringify(updated));
+    showToast('Meeting removed.');
   };
 
   const handleSaveSettings = (e) => {
@@ -167,7 +327,7 @@ const RoomConnection = () => {
         <div className="nav-left">
           <div className="calyx-logo">
             <div className="logo-icon-wrap">
-              <Video size={24} color="#fff" fill="var(--primary-indigo)" />
+              <Video size={20} color="#fff" fill="var(--primary-indigo)" />
             </div>
             <span className="logo-text">Calyx <span className="logo-accent">Meet</span></span>
           </div>
@@ -176,15 +336,15 @@ const RoomConnection = () => {
           <div className="nav-time">{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {new Date().toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}</div>
           <div className="nav-icons">
             <button className="nav-icon-btn" onClick={() => { setShowHelpModal(true); setFaqOpenIndex(null); }} title="Help & FAQ">
-              <HelpCircle size={20} />
+              <HelpCircle size={18} />
             </button>
             <button className="nav-icon-btn" onClick={() => setShowNotificationsModal(true)} title="What's New">
-              <MessageSquare size={20} />
+              <MessageSquare size={18} />
             </button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="nav-icon-btn" title="Preferences">
-                  <Settings size={20} />
+                  <Settings size={18} />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56" style={{ background: 'var(--bg-panel)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', zIndex: 100, minWidth: '200px' }}>
@@ -231,7 +391,7 @@ const RoomConnection = () => {
           </div>
           <div className="user-section" title={currentUser?.email}>
             <button className="logout-btn" onClick={handleLogout} title="Sign Out">
-              <LogOut size={18} />
+              <LogOut size={16} />
             </button>
             <div className="user-avatar-small">
               {currentUser?.photoURL 
@@ -243,33 +403,39 @@ const RoomConnection = () => {
         </div>
       </nav>
 
-      {/* Hero Content */}
       <main className="calyx-hero">
-        <div className="hero-content">
-          <div className="hero-badge">Next Generation Video Calls</div>
-          <h1 className="hero-title">
-            Connect Beyond <br />
-            <span className="gradient-text">Boundaries</span>
-          </h1>
-          <p className="hero-subtitle">
-            Calyx Meet combines high-fidelity video with deep privacy and premium design.
-          </p>
+        <div className="hero-split-container">
+          {/* Left Column: Actions and Text */}
+          <div className="hero-content-left fade-in">
+            <div className="hero-badge">
+              <Shield className="badge-icon" size={13} color="var(--primary-indigo)" />
+              <span>Enterprise-Grade Security • AES-256 Encrypted</span>
+            </div>
+            
+            <h1 className="hero-title">
+              Secure, high-fidelity <br />
+              video calls.
+            </h1>
+            
+            <p className="hero-subtitle">
+              Calyx Meet delivers zero-latency peer connection audio and video, dynamic shared canvas sketchpads, and robust host security controls — built entirely on open WebRTC standards.
+            </p>
 
-          <div className="hero-cta-card glass-panel">
-            <div className="cta-row">
+            <div className="unified-cta-bar glass-panel">
               <div className="new-meeting-container" ref={dropdownRef}>
                 <button 
                   className="btn-premium" 
                   onClick={() => setShowDropdown(!showDropdown)}
                 >
-                  <Video size={20} />
-                  <span>Start a Meeting</span>
+                  <Video size={18} />
+                  <span>Start meeting</span>
+                  <ChevronDown size={14} style={{ marginLeft: '4px', opacity: 0.8 }} />
                 </button>
                 
                 {showDropdown && (
                   <div className="modern-dropdown animate-fade-in">
                     <button className="dropdown-item btn-ghost" onClick={handleInstantMeeting}>
-                      <Plus size={18} />
+                      <Plus size={16} />
                       <span>Instant Meeting</span>
                     </button>
                     <button className="dropdown-item btn-ghost" onClick={() => {
@@ -278,25 +444,25 @@ const RoomConnection = () => {
                       setShowScheduleModal(true);
                       setShowDropdown(false);
                     }}>
-                      <Calendar size={18} />
+                      <Calendar size={16} />
                       <span>Schedule Meeting</span>
                     </button>
                     <button className="dropdown-item btn-ghost" onClick={() => {
                       generateLaterLink();
                       setShowDropdown(false);
                     }}>
-                      <Link size={18} />
+                      <Link size={16} />
                       <span>Get Link for Later</span>
                     </button>
                   </div>
                 )}
               </div>
 
-              <div className="cta-divider">or</div>
+              <div className="cta-v-divider"></div>
 
               <form className="join-input-group" onSubmit={handleJoinSubmit}>
                 <div className="modern-input">
-                  <Keyboard size={18} />
+                  <Keyboard size={16} />
                   <input 
                     type="text" 
                     placeholder="Enter code or link" 
@@ -306,37 +472,206 @@ const RoomConnection = () => {
                 </div>
                 <button 
                   type="submit" 
-                  className="btn-glass"
+                  className={`btn-join ${roomName ? 'active' : ''}`}
                   disabled={!roomName}
-                  style={{ opacity: roomName ? 1 : 0.5 }}
                 >
                   Join
                 </button>
               </form>
             </div>
+
+            <div className="hero-stats">
+              <div className="stat-item">
+                <strong>4K UHD</strong>
+                <span>Ultra HD Resolution</span>
+              </div>
+              <div className="stat-divider"></div>
+              <div className="stat-item">
+                <strong>AES-256</strong>
+                <span>P2P Encryption</span>
+              </div>
+              <div className="stat-divider"></div>
+              <div className="stat-item">
+                <strong>FREE</strong>
+                <span>Unlimited Duration</span>
+              </div>
+            </div>
+
+            {/* Recreated scheduled meetings landing page layout */}
+            <div className="scheduled-meetings-container">
+              <div className="scheduled-header">
+                <div className="header-title-wrap">
+                  <Calendar size={15} color="var(--primary-indigo)" />
+                  <h3>Upcoming Scheduled Meetings</h3>
+                  {scheduledMeetings.length > 0 && (
+                    <span className="scheduled-count-badge">{scheduledMeetings.length}</span>
+                  )}
+                </div>
+              </div>
+
+              {scheduledMeetings.length === 0 ? (
+                <div className="scheduled-empty-card">
+                  <p>No upcoming meetings scheduled. Click "Start meeting" to plan a calendar invite.</p>
+                </div>
+              ) : (
+                <div className="scheduled-list">
+                  {scheduledMeetings.map((meeting) => (
+                    <div key={meeting.id} className="scheduled-meeting-card glass-panel">
+                      <div className="meeting-card-info">
+                        <h4 className="meeting-card-title">{meeting.title}</h4>
+                        <div className="meeting-card-meta">
+                          <span>{meeting.date} • {meeting.time} ({meeting.duration})</span>
+                        </div>
+                      </div>
+                      <div className="meeting-card-actions">
+                        <a 
+                          href={meeting.gCalUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="meeting-action-icon-btn google-cal-btn" 
+                          title="Add to Google Calendar"
+                        >
+                          <svg viewBox="0 0 24 24" width="14" height="14" className="gcal-svg-icon" fill="currentColor">
+                            <path fill="#4285F4" d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+                          </svg>
+                        </a>
+                        <button 
+                          className="meeting-action-icon-btn" 
+                          onClick={() => handleCopyLink(meeting.link)}
+                          title="Copy Invitation Link"
+                        >
+                          <Copy size={13} />
+                        </button>
+                        <button 
+                          className="meeting-action-icon-btn delete-btn" 
+                          onClick={() => handleDeleteMeeting(meeting.id)}
+                          title="Delete Schedule"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                        <button 
+                          className="btn-join-scheduled" 
+                          onClick={() => navigate(`/room/${meeting.id}?name=${encodeURIComponent(participantName)}`)}
+                        >
+                          Join
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
-          <div className="hero-stats">
-            <div className="stat-item">
-              <strong>4K</strong>
-              <span>Ultra HD Support</span>
-            </div>
-            <div className="stat-divider"></div>
-            <div className="stat-item">
-              <strong>256-bit</strong>
-              <span>E2E Encryption</span>
-            </div>
-            <div className="stat-divider"></div>
-            <div className="stat-item">
-              <strong>Free</strong>
-              <span>For Everyone</span>
+          {/* Right Column: High-fidelity Local Device and Lobby Camera Setup Console */}
+          <div className="hero-content-right scale-up">
+            <div className="lobby-setup-panel glass-panel">
+              <div className="lobby-setup-header">
+                <h4>
+                  <span className="lobby-setup-dot"></span>
+                  <span>Lobby Device Preview</span>
+                </h4>
+                <div className="webrtc-badge">
+                  <Globe size={12} color="var(--accent-teal)" style={{ flexShrink: 0 }} />
+                  <span>WebRTC Protected</span>
+                </div>
+              </div>
+              
+              <div className="lobby-setup-screen">
+                {isCameraOn ? (
+                  <video 
+                    ref={localVideoRef} 
+                    autoPlay 
+                    playsInline 
+                    muted 
+                    className="local-preview-video"
+                  />
+                ) : (
+                  <div className="lobby-setup-avatar-wrap">
+                    <div className="lobby-setup-avatar">
+                      {currentUser?.photoURL 
+                        ? <img src={currentUser.photoURL} alt="User" />
+                        : participantName.charAt(0).toUpperCase()
+                      }
+                    </div>
+                    <div className="lobby-setup-avatar-glow"></div>
+                  </div>
+                )}
+                
+                {/* Audio level meter animation showing microphone active state */}
+                {isMicOn && (
+                  <div className="lobby-audio-waveform">
+                    <div className="wave-bar-live"></div>
+                    <div className="wave-bar-live"></div>
+                    <div className="wave-bar-live"></div>
+                    <div className="wave-bar-live"></div>
+                    <div className="wave-bar-live"></div>
+                  </div>
+                )}
+
+                {/* Overlaid hardware toggles */}
+                <div className="lobby-setup-actions">
+                  <button 
+                    onClick={toggleMic} 
+                    className={`setup-action-btn ${isMicOn ? 'active' : 'muted'}`}
+                    title={isMicOn ? 'Mute Microphone' : 'Unmute Microphone'}
+                    type="button"
+                  >
+                    {isMicOn ? <Mic size={15} /> : <MicOff size={15} />}
+                  </button>
+                  <button 
+                    onClick={toggleCamera} 
+                    className={`setup-action-btn ${isCameraOn ? 'active' : 'muted'}`}
+                    title={isCameraOn ? 'Stop Camera' : 'Start Camera'}
+                    type="button"
+                  >
+                    {isCameraOn ? <Video size={15} /> : <VideoOff size={15} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Hardware selectors config drawer */}
+              <div className="lobby-device-selectors">
+                <div className="selector-group">
+                  <label>Camera Video Input</label>
+                  <select 
+                    value={selectedCamera} 
+                    onChange={(e) => setSelectedCamera(e.target.value)}
+                    disabled={isCameraOn}
+                  >
+                    {cameraDevices.length > 0 ? (
+                      cameraDevices.map(d => (
+                        <option key={d.deviceId} value={d.deviceId}>{d.label || `Camera ${cameraDevices.indexOf(d) + 1}`}</option>
+                      ))
+                    ) : (
+                      <option value="">Default Integrated Camera</option>
+                    )}
+                  </select>
+                </div>
+
+                <div className="selector-group">
+                  <label>Microphone Audio Input</label>
+                  <select 
+                    value={selectedMic} 
+                    onChange={(e) => setSelectedMic(e.target.value)}
+                  >
+                    {micDevices.length > 0 ? (
+                      micDevices.map(d => (
+                        <option key={d.deviceId} value={d.deviceId}>{d.label || `Microphone ${micDevices.indexOf(d) + 1}`}</option>
+                      ))
+                    ) : (
+                      <option value="">Default System Microphone</option>
+                    )}
+                  </select>
+                </div>
+              </div>
+
+              <div className="lobby-setup-footer">
+                <p>Ensure your camera and microphone operate correctly before joining.</p>
+              </div>
             </div>
           </div>
         </div>
-        
-        {/* Abstract Background Elements */}
-        <div className="hero-glow-1"></div>
-        <div className="hero-glow-2"></div>
       </main>
 
       {/* ── SCHEDULE MEETING MODAL ── */}
@@ -414,7 +749,20 @@ const RoomConnection = () => {
                     </button>
                   </div>
                   
-                  <button className="btn-glass" style={{ width: '100%', marginTop: '16px' }} onClick={() => setShowScheduleModal(false)}>
+                  {googleCalLink && (
+                    <a 
+                      href={googleCalLink} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="btn-premium" 
+                      style={{ width: '100%', marginTop: '14px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', textDecoration: 'none' }}
+                    >
+                      <Calendar size={16} />
+                      <span>Add to Google Calendar</span>
+                    </a>
+                  )}
+                  
+                  <button className="btn-glass" style={{ width: '100%', marginTop: '12px' }} onClick={() => setShowScheduleModal(false)}>
                     Done
                   </button>
                 </div>
@@ -611,8 +959,6 @@ const RoomConnection = () => {
           <span>{toastMessage}</span>
         </div>
       )}
-
-      <Footer />
     </div>
   );
 };

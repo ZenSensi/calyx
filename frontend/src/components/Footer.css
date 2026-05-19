@@ -1,5 +1,5 @@
 .calyx-footer {
-  background: var(--bg-dark);
+  background: transparent;
   padding: 80px 40px 40px;
   border-top: 1px solid var(--border-color);
   z-index: 10;

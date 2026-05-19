@@ -113,7 +113,7 @@ const VideoCallApp = () => {
     return (
       <div className="loading-screen" style={{
         height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column',
-        justifyContent: 'center', alignItems: 'center', background: 'var(--bg-dark)',
+        justifyContent: 'center', alignItems: 'center', background: 'transparent',
         backgroundImage: 'radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(0, 210, 255, 0.1) 0px, transparent 50%)'
       }}>
         <div className="spinner" style={{
@@ -139,7 +139,7 @@ const VideoCallApp = () => {
       className="zoom-app-container"
       onDisconnected={() => {
         console.log('[VideoCallApp] Room disconnected');
-        navigate('/meeting-over');
+        navigate('/meeting-over', { state: { roomName } });
       }}
       connectOptions={{ autoSubscribe: true }}
     >
@@ -151,13 +151,14 @@ const VideoCallApp = () => {
         admitted={admitted}
         admittedPending={admittedPending}
         onAdmit={handleAdmitTransition}
+        setAdmittedPending={setAdmittedPending}
       />
     </LiveKitRoom>
   );
 };
 
 // ─── Inner meeting room: can use LiveKit hooks ────────────────────────────────
-const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, admittedPending, onAdmit }) => {
+const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, admittedPending, onAdmit, setAdmittedPending }) => {
   const room = useRoomContext();
   const navigate = useNavigate();
   const { currentUser } = useAuth();
@@ -173,7 +174,6 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
   const [sidebarTab, setSidebarTab] = useState('participants');
   const [copied, setCopied] = useState(false);
   const [denied, setDenied] = useState(false);
-  const [waitingList, setWaitingList] = useState([]);
   const [pinnedTrackSid, setPinnedTrackSid] = useState(null);
   const [messages, setMessages] = useState([]);
   const [pinnedMessage, setPinnedMessage] = useState(null);
@@ -188,6 +188,19 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
 
   const reactionsRef = useRef(null);
   const moreOptionsRef = useRef(null);
+  const remoteParticipants = useParticipants();
+
+  // Derive waiting list reactively to avoid race conditions and mount lag
+  const waitingList = remoteParticipants.filter(p => {
+    try {
+      return JSON.parse(p.metadata || '{}').isWaiting;
+    } catch {
+      return false;
+    }
+  }).map(p => ({
+    identity: p.identity,
+    name: p.name || p.identity
+  }));
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -234,6 +247,19 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
 
   // ── Encode / send a data message ────────────────────────────────────────────
   const sendData = useCallback(async (payload) => {
+    if (!room || !room.localParticipant) return;
+    if (room.state !== 'connected') {
+      console.warn('[MeetingRoom] Cannot send data: Room is not connected');
+      return;
+    }
+    try {
+      const meta = JSON.parse(room.localParticipant.metadata || '{}');
+      if (meta.isWaiting) {
+        console.warn('[MeetingRoom] Cannot send data: Participant is in waiting state');
+        return;
+      }
+    } catch (e) {}
+
     const encoded = new TextEncoder().encode(JSON.stringify(payload));
     try {
       await room.localParticipant.publishData(encoded, { reliable: true });
@@ -244,8 +270,10 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
 
   // ── Sync Hand Raised State ──────────────────────────────────────────────────
   useEffect(() => {
-    sendData({ type: 'calyx-hand-raise', handRaised });
-  }, [handRaised, sendData]);
+    if (admitted) {
+      sendData({ type: 'calyx-hand-raise', handRaised });
+    }
+  }, [handRaised, admitted, sendData]);
 
   // ── Floating Reactions Handler ──────────────────────────────────────────────
   const triggerReaction = useCallback((emoji) => {
@@ -286,7 +314,6 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
       });
       // Fallback data message for instant UI feedback
       await sendData({ type: 'calyx-admit', identity });
-      setWaitingList(prev => prev.filter(p => p.identity !== identity));
     } catch (err) {
       console.error('Failed to admit participant:', err);
     }
@@ -302,7 +329,6 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
         body: JSON.stringify({ roomName, identity })
       });
       await sendData({ type: 'calyx-deny', identity });
-      setWaitingList(prev => prev.filter(p => p.identity !== identity));
     } catch (err) {
       console.error('Failed to deny participant:', err);
     }
@@ -310,27 +336,6 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
 
   // ── LiveKit event listeners ─────────────────────────────────────────────────
   useEffect(() => {
-    const addToWaiting = (participant) => {
-      try {
-        const meta = JSON.parse(participant.metadata || '{}');
-        if (meta.isWaiting) {
-          setWaitingList(prev => {
-            if (prev.find(p => p.identity === participant.identity)) return prev;
-            return [...prev, { identity: participant.identity, name: participant.name || participant.identity }];
-          });
-        }
-      } catch { }
-    };
-
-    // Check participants who are already in the room when this component mounts
-    room.remoteParticipants.forEach(p => addToWaiting(p));
-
-    const onParticipantConnected = (p) => addToWaiting(p);
-
-    const onParticipantDisconnected = (p) => {
-      setWaitingList(prev => prev.filter(x => x.identity !== p.identity));
-    };
-
     const onMetadataChanged = (prev, participant) => {
       if (participant === room.localParticipant) {
         try {
@@ -338,14 +343,6 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
           if (meta.isWaiting === false) {
             console.log('[MeetingRoom] Metadata updated: I am admitted!');
             onAdmit();
-          }
-        } catch {}
-      } else {
-        // Remove from waiting list if they are no longer waiting
-        try {
-          const meta = JSON.parse(participant.metadata || '{}');
-          if (!meta.isWaiting) {
-            setWaitingList(prev => prev.filter(x => x.identity !== participant.identity));
           }
         } catch {}
       }
@@ -396,14 +393,10 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
       }
     };
 
-    room.on('participantConnected', onParticipantConnected);
-    room.on('participantDisconnected', onParticipantDisconnected);
     room.on('participantMetadataChanged', onMetadataChanged);
     room.on('dataReceived', onDataReceived);
 
     return () => {
-      room.off('participantConnected', onParticipantConnected);
-      room.off('participantDisconnected', onParticipantDisconnected);
       room.off('participantMetadataChanged', onMetadataChanged);
       room.off('dataReceived', onDataReceived);
     };
@@ -424,8 +417,7 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
             if (isHost) {
               onAdmit(); // Host admits themselves
             } else {
-              // Participant sends metadata that they are waiting
-              room.localParticipant.setMetadata(JSON.stringify({ isHost: false, isWaiting: true }));
+              setAdmittedPending(true);
             }
           }}
         />
@@ -663,7 +655,20 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
               </div>
 
               <div className="footer-right">
-                <button className="icon-btn-ghost" title="Meeting info"><Info size={20} /></button>
+                <button 
+                  className={`icon-btn-ghost ${sidebarOpen && sidebarTab === 'info' ? 'active' : ''}`} 
+                  onClick={() => {
+                    if (sidebarOpen && sidebarTab === 'info') {
+                      setSidebarOpen(false);
+                    } else {
+                      setSidebarOpen(true);
+                      setSidebarTab('info');
+                    }
+                  }}
+                  title="Meeting info"
+                >
+                  <Info size={20} />
+                </button>
                 <button 
                   className={`icon-btn-ghost ${sidebarOpen && sidebarTab === 'participants' ? 'active' : ''}`} 
                   onClick={() => {
@@ -692,8 +697,34 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
                 >
                   <MessageSquare size={20} />
                 </button>
-                <button className="icon-btn-ghost" title="Activities"><Shapes size={20} /></button>
-                <button className="icon-btn-ghost" title="Host controls"><Lock size={20} /></button>
+                <button 
+                  className={`icon-btn-ghost ${sidebarOpen && sidebarTab === 'activities' ? 'active' : ''}`} 
+                  onClick={() => {
+                    if (sidebarOpen && sidebarTab === 'activities') {
+                      setSidebarOpen(false);
+                    } else {
+                      setSidebarOpen(true);
+                      setSidebarTab('activities');
+                    }
+                  }}
+                  title="Activities"
+                >
+                  <Shapes size={20} />
+                </button>
+                <button 
+                  className={`icon-btn-ghost ${sidebarOpen && sidebarTab === 'settings' ? 'active' : ''}`} 
+                  onClick={() => {
+                    if (sidebarOpen && sidebarTab === 'settings') {
+                      setSidebarOpen(false);
+                    } else {
+                      setSidebarOpen(true);
+                      setSidebarTab('settings');
+                    }
+                  }}
+                  title="Host controls"
+                >
+                  <Lock size={20} />
+                </button>
               </div>
             </footer>
           </div>
@@ -726,6 +757,9 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
               sendData(payload);
               setPinnedMessage(msg);
             }}
+            isHost={isHost}
+            participantName={participantName}
+            roomName={roomName}
           />
         </div>
       )}
@@ -1681,6 +1715,9 @@ const Sidebar = ({
       </div>
 
       <div className="sidebar-content">
+        {activeTab === 'info' && (
+          <InfoPanel roomName={roomName} participantName={participantName} />
+        )}
         {activeTab === 'participants' && (
           <div className="participants-list">
             <button className="btn-premium add-people-btn" style={{ width: '100%', marginBottom: '20px' }}>
@@ -1762,8 +1799,11 @@ const Sidebar = ({
             pinnedMessage={pinnedMessage}
             onSendMessage={onSendMessage} 
             onPinMessage={onPinMessage}
-            isHost={getMeta(room.localParticipant).isHost}
+            isHost={isHost}
           />
+        )}
+        {activeTab === 'activities' && (
+          <ActivitiesPanel />
         )}
         {activeTab === 'settings' && (
           <HostSettings room={room} />

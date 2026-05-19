@@ -54,6 +54,12 @@ function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
+        <div className="bg-tech-grid" />
+        <div className="bg-tech-glows">
+          <div className="glow-blob glow-blob-indigo" />
+          <div className="glow-blob glow-blob-teal" />
+          <div className="glow-blob glow-blob-purple" />
+        </div>
         <Router>
           <Routes>
             <Route path="/login" element={
@@ -66,16 +72,8 @@ function App() {
                 <Register />
               </PublicOnlyRoute>
             } />
-            <Route path="/" element={
-              <ProtectedRoute>
-                <RoomConnection />
-              </ProtectedRoute>
-            } />
-            <Route path="/room/:roomName" element={
-              <ProtectedRoute>
-                <VideoCallApp />
-              </ProtectedRoute>
-            } />
+            <Route path="/" element={<RoomConnection />} />
+            <Route path="/room/:roomName" element={<VideoCallApp />} />
             <Route path="/meeting-over" element={<MeetingOver />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           </Routes>

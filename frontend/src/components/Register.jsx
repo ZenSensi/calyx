@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { UserPlus, Mail, Video } from 'lucide-react';
 import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, signInWithRedirect } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
-import Footer from './Footer';
 import './Auth.css';
 
 const GoogleIcon = () => (
@@ -86,10 +85,10 @@ const Register = () => {
   return (
     <div className="auth-container">
       <div className="auth-wrapper">
-        <div className="auth-card shadow-sm">
+        <div className="auth-card">
           <div className="auth-header">
             <div className="auth-icon">
-              <Video size={28} color="#1a73e8" fill="#1a73e8" />
+              <Video size={26} color="var(--primary-indigo)" fill="rgba(99, 102, 241, 0.2)" />
             </div>
             <h1>Create your account</h1>
             <p>Join Calyx Meet for free</p>
@@ -179,7 +178,6 @@ const Register = () => {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 };
