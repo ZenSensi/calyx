@@ -768,6 +768,17 @@
   box-shadow: 0 0 0 3px var(--accent-indigo-glow);
 }
 
+.modal-form select option {
+  background: #0a0c16;
+  color: #f8fafc;
+  padding: 10px 16px;
+}
+
+.dark-theme .modal-form select option {
+  background: #0a0c16;
+  color: #f8fafc;
+}
+
 .copy-link-box {
   display: flex;
   gap: 8px;
