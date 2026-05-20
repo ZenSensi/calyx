@@ -186,6 +186,41 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
   const [activeReactions, setActiveReactions] = useState([]);
   const [subtitleText, setSubtitleText] = useState('');
 
+  const [showControls, setShowControls] = useState(true);
+  const controlsTimeoutRef = useRef(null);
+  const footerHoveredRef = useRef(false);
+
+  const showControlsTemporarily = useCallback(() => {
+    setShowControls(true);
+    if (controlsTimeoutRef.current) {
+      clearTimeout(controlsTimeoutRef.current);
+    }
+    if (footerHoveredRef.current) return;
+    controlsTimeoutRef.current = setTimeout(() => {
+      setShowControls(false);
+    }, 20000); // 20 seconds
+  }, []);
+
+  useEffect(() => {
+    // Show controls initially
+    showControlsTemporarily();
+
+    const handleInteraction = () => {
+      showControlsTemporarily();
+    };
+
+    window.addEventListener('click', handleInteraction, { capture: true });
+    window.addEventListener('touchstart', handleInteraction, { capture: true });
+
+    return () => {
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current);
+      }
+      window.removeEventListener('click', handleInteraction, { capture: true });
+      window.removeEventListener('touchstart', handleInteraction, { capture: true });
+    };
+  }, [showControlsTemporarily]);
+
   const reactionsRef = useRef(null);
   const moreOptionsRef = useRef(null);
   const remoteParticipants = useParticipants();
@@ -497,7 +532,17 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
               )}
             </div>
 
-            <footer className="meeting-footer">
+            <footer 
+              className={`meeting-footer ${!showControls ? 'controls-hidden' : ''}`}
+              onMouseEnter={() => {
+                footerHoveredRef.current = true;
+                showControlsTemporarily();
+              }}
+              onMouseLeave={() => {
+                footerHoveredRef.current = false;
+                showControlsTemporarily();
+              }}
+            >
               <div className="footer-left">
                 <span className="footer-time">
                   {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
