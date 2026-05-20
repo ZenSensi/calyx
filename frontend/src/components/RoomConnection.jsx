@@ -15,6 +15,7 @@ import {
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
+import Footer from './Footer';
 import './RoomConnection.css';
 
 const RoomConnection = () => {
@@ -959,6 +960,7 @@ const RoomConnection = () => {
           <span>{toastMessage}</span>
         </div>
       )}
+      <Footer />
     </div>
   );
 };
