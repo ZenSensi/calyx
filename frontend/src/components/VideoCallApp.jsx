@@ -470,26 +470,28 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
         </div>
       )}
 
-      {/* ── Host Admission Popups (stack from top center) ──────────────────── */}
+      {/* ── Host Admission Popups (stack from top-right) ──────────────────── */}
       {waitingList.map((p, idx) => (
         <div
           key={p.identity}
-          className="admission-popup glass-panel"
-          style={{ top: `${idx * 80 + 100}px` }}
+          className="admission-popup"
+          style={{ top: `${idx * 96 + 80}px` }}
         >
-          <div className="admission-avatar-wrap">
+          <div className="admission-popup-inner">
             <div className="admission-avatar">{p.name.charAt(0).toUpperCase()}</div>
-          </div>
-          <div className="admission-info">
-            <strong>{p.name}</strong>
-            <span>wants to join this meeting</span>
+            <div className="admission-info">
+              <strong className="admission-name">{p.name}</strong>
+              <span className="admission-sub">wants to join this meeting</span>
+            </div>
           </div>
           <div className="admission-actions">
-            <button className="btn-glass" style={{ padding: '6px 16px', borderRadius: '8px', fontSize: '13px' }} onClick={() => handleDeny(p.identity)}>
-              <UserX size={14} /> Decline
+            <button className="admission-btn deny" onClick={() => handleDeny(p.identity)}>
+              <UserX size={14} />
+              <span>Decline</span>
             </button>
-            <button className="btn-premium" style={{ padding: '6px 16px', borderRadius: '8px', fontSize: '13px' }} onClick={() => handleAdmit(p.identity)}>
-              <UserCheck size={14} /> Admit
+            <button className="admission-btn admit" onClick={() => handleAdmit(p.identity)}>
+              <UserCheck size={14} />
+              <span>Admit</span>
             </button>
           </div>
         </div>
