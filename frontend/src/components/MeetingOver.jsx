@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Video, Home, Clock, RefreshCw, ThumbsUp, ThumbsDown } from 'lucide-react';
-import Footer from './Footer';
 import './MeetingOver.css';
 
 const MeetingOver = () => {
@@ -105,7 +104,6 @@ const MeetingOver = () => {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 };
