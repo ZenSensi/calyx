@@ -282,9 +282,9 @@ const RoomConnection = () => {
     
     // Apply Theme
     if (settingsData.theme === 'dark') {
-      document.documentElement.classList.add('dark-theme');
+      document.documentElement.classList.add('dark');
     } else {
-      document.documentElement.classList.remove('dark-theme');
+      document.documentElement.classList.remove('dark');
     }
     localStorage.setItem('calyx-theme', settingsData.theme);
 
@@ -370,7 +370,7 @@ const RoomConnection = () => {
                     <DropdownMenuItem 
                       style={{ padding: '8px 12px', fontSize: '14px', cursor: 'pointer' }}
                       onClick={() => {
-                        document.documentElement.classList.remove('dark-theme');
+                        document.documentElement.classList.remove('dark');
                         localStorage.setItem('calyx-theme', 'light');
                       }}
                     >
@@ -379,7 +379,7 @@ const RoomConnection = () => {
                     <DropdownMenuItem 
                       style={{ padding: '8px 12px', fontSize: '14px', cursor: 'pointer' }}
                       onClick={() => {
-                        document.documentElement.classList.add('dark-theme');
+                        document.documentElement.classList.add('dark');
                         localStorage.setItem('calyx-theme', 'dark');
                       }}
                     >

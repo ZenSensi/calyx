@@ -1965,9 +1965,9 @@ const HostSettings = ({ room }) => {
     const newTheme = e.target.value;
     setTheme(newTheme);
     if (newTheme === 'dark') {
-      document.documentElement.classList.add('dark-theme');
+      document.documentElement.classList.add('dark');
     } else {
-      document.documentElement.classList.remove('dark-theme');
+      document.documentElement.classList.remove('dark');
     }
     localStorage.setItem('calyx-theme', newTheme);
   };
