@@ -1985,13 +1985,7 @@ const HostSettings = ({ room }) => {
         <select 
           value={theme}
           onChange={handleThemeChange}
-          style={{
-            padding: '6px 10px',
-            borderRadius: '6px',
-            background: 'var(--bg-panel-light)',
-            color: 'var(--text-primary)',
-            border: '1px solid var(--border-color)'
-          }}
+          className="premium-select"
         >
           <option value="light">Light Mode</option>
           <option value="dark">Dark Mode</option>
@@ -2003,7 +1997,10 @@ const HostSettings = ({ room }) => {
           <strong>Share their screen</strong>
           <span>Let everyone share their screen</span>
         </div>
-        <input type="checkbox" defaultChecked />
+        <label className="premium-switch">
+          <input type="checkbox" defaultChecked />
+          <span className="slider round"></span>
+        </label>
       </div>
 
       <div className="settings-toggle">
@@ -2011,10 +2008,16 @@ const HostSettings = ({ room }) => {
           <strong>Send chat messages</strong>
           <span>Let everyone send messages</span>
         </div>
-        <input type="checkbox" defaultChecked />
+        <label className="premium-switch">
+          <input type="checkbox" defaultChecked />
+          <span className="slider round"></span>
+        </label>
       </div>
 
-      <button className="mute-all-btn">Mute all participants</button>
+      <button className="mute-all-btn">
+        <MicOff size={16} />
+        <span>Mute all participants</span>
+      </button>
     </div>
   );
 };
