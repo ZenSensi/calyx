@@ -14,7 +14,7 @@ import {
 } from '@livekit/components-react';
 import { Track, createLocalVideoTrack, createLocalAudioTrack } from 'livekit-client';
 import { BackgroundBlur } from '@livekit/track-processors';
-import { MessageSquare, Users, Search, Mic, MicOff, Video, VideoOff, PhoneOff, Share, Share2, Copy, Check, Clock, UserCheck, UserX, Camera, CameraOff, Pin, PinOff, MoreVertical, Settings, Smile, Hand, Info, Shapes, Lock, X, UserPlus, Subtitles, Send, Maximize, Trash2, ArrowLeft, Palette, Brush, Sparkles, Download, BarChart2 } from 'lucide-react';
+import { MessageSquare, Users, Search, Mic, MicOff, Video, VideoOff, PhoneOff, Share, Share2, Copy, Check, Clock, UserCheck, UserX, Camera, CameraOff, Pin, PinOff, MoreVertical, Settings, Smile, Hand, Info, Shapes, Lock, X, UserPlus, Subtitles, Send, Maximize, Trash2, ArrowLeft, Palette, Brush, Sparkles, Download, BarChart2, Shield, Calendar } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import './VideoCallApp.css';
 
@@ -1289,7 +1289,10 @@ const InfoPanel = ({ roomName, participantName }) => {
   return (
     <div className="info-panel-container">
       <div className="info-header-card glass-panel-premium">
-        <h4>Joining Info</h4>
+        <div className="info-title-wrap">
+          <Info size={16} className="title-icon" />
+          <h4>Joining Info</h4>
+        </div>
         <p className="join-url-text">{joinUrl}</p>
         <button className="btn-premium copy-info-btn" onClick={handleCopyLink}>
           {copied ? <Check size={16} /> : <Copy size={16} />}
@@ -1299,24 +1302,43 @@ const InfoPanel = ({ roomName, participantName }) => {
 
       <div className="info-details-list">
         <div className="info-detail-item">
-          <span className="detail-label">Active User</span>
-          <span className="detail-value">{participantName}</span>
+          <div className="detail-label-wrap">
+            <UserCheck size={16} className="detail-icon" />
+            <span className="detail-label">Active User</span>
+          </div>
+          <span className="detail-value" title={participantName}>{participantName}</span>
         </div>
         <div className="info-detail-item">
-          <span className="detail-label">Meeting Code</span>
+          <div className="detail-label-wrap">
+            <Clock size={16} className="detail-icon" />
+            <span className="detail-label">Meeting Code</span>
+          </div>
           <span className="detail-value font-mono">{roomName}</span>
         </div>
         <div className="info-detail-item">
-          <span className="detail-label">Security</span>
-          <span className="detail-value">Lobby Verification</span>
+          <div className="detail-label-wrap">
+            <Shield size={16} className="detail-icon text-emerald" />
+            <span className="detail-label">Security</span>
+          </div>
+          <span className="detail-value security-verified">
+            Lobby Verification
+          </span>
         </div>
         <div className="info-detail-item">
-          <span className="detail-label">Encryption</span>
-          <span className="detail-value">End-to-End Encrypted</span>
+          <div className="detail-label-wrap">
+            <Lock size={16} className="detail-icon text-indigo" />
+            <span className="detail-label">Encryption</span>
+          </div>
+          <span className="detail-value encryption-secure">
+            End-to-End
+          </span>
         </div>
       </div>
 
       <div className="info-calendar-promo glass-panel">
+        <div className="promo-icon-wrap">
+          <Calendar size={20} className="calendar-icon" />
+        </div>
         <div className="promo-text-wrap">
           <strong>Google Calendar Sync</strong>
           <span>Add this room link to your calendar invites</span>
