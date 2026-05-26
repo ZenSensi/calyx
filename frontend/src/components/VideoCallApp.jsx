@@ -1286,6 +1286,23 @@ const InfoPanel = ({ roomName, participantName }) => {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const { localParticipant } = useLocalParticipant();
+  const remoteParticipants = useParticipants();
+
+  const getMeta = (p) => {
+    try {
+      return JSON.parse(p.metadata || '{}');
+    } catch {
+      return {};
+    }
+  };
+
+  // Find the host/admin name
+  const allInMeeting = [localParticipant, ...remoteParticipants].filter(p => p && !getMeta(p).isWaiting);
+  const hostParticipant = allInMeeting.find(p => getMeta(p).isHost) || 
+                          allInMeeting.find(p => p.isLocal && getMeta(p).isHost);
+  const adminName = hostParticipant?.name || hostParticipant?.identity || (getMeta(localParticipant).isHost ? participantName : "Admin");
+
   return (
     <div className="info-panel-container">
       <div className="info-header-card glass-panel-premium">
@@ -1304,9 +1321,9 @@ const InfoPanel = ({ roomName, participantName }) => {
         <div className="info-detail-item">
           <div className="detail-label-wrap">
             <UserCheck size={16} className="detail-icon" />
-            <span className="detail-label">Active User</span>
+            <span className="detail-label">Admin Name</span>
           </div>
-          <span className="detail-value" title={participantName}>{participantName}</span>
+          <span className="detail-value" title={adminName}>{adminName}</span>
         </div>
         <div className="info-detail-item">
           <div className="detail-label-wrap">
