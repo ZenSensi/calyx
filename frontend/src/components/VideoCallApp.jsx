@@ -51,12 +51,12 @@ const VideoCallApp = () => {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/getToken`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          roomName, 
-          participantName, 
-          isHost, 
+        body: JSON.stringify({
+          roomName,
+          participantName,
+          isHost,
           isWaiting: waiting,
-          photoURL: currentUser?.photoURL || null 
+          photoURL: currentUser?.photoURL || null
         }),
       });
       if (response.ok) {
@@ -177,7 +177,7 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
   const [pinnedTrackSid, setPinnedTrackSid] = useState(null);
   const [messages, setMessages] = useState([]);
   const [pinnedMessage, setPinnedMessage] = useState(null);
-  
+
   const [captionsActive, setCaptionsActive] = useState(false);
   const [handRaised, setHandRaised] = useState(false);
   const [remoteHandsRaised, setRemoteHandsRaised] = useState({});
@@ -293,7 +293,7 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
         console.warn('[MeetingRoom] Cannot send data: Participant is in waiting state');
         return;
       }
-    } catch (e) {}
+    } catch (e) { }
 
     const encoded = new TextEncoder().encode(JSON.stringify(payload));
     try {
@@ -379,7 +379,7 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
             console.log('[MeetingRoom] Metadata updated: I am admitted!');
             onAdmit();
           }
-        } catch {}
+        } catch { }
       }
     };
 
@@ -503,8 +503,8 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
           <div className="main-content">
 
             <div className="video-stage">
-              <CustomVideoStage 
-                pinnedTrackSid={pinnedTrackSid} 
+              <CustomVideoStage
+                pinnedTrackSid={pinnedTrackSid}
                 setPinnedTrackSid={setPinnedTrackSid}
                 sidebarOpen={sidebarOpen}
                 setSidebarOpen={setSidebarOpen}
@@ -516,8 +516,8 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
               {/* Floating Reactions Overlay */}
               <div className="floating-reactions-overlay">
                 {activeReactions.map(r => (
-                  <span 
-                    key={r.id} 
+                  <span
+                    key={r.id}
                     className="floating-emoji"
                     style={{ left: `${r.left}%` }}
                   >
@@ -534,7 +534,7 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
               )}
             </div>
 
-            <footer 
+            <footer
               className={`meeting-footer ${!showControls ? 'controls-hidden' : ''}`}
               onMouseEnter={() => {
                 footerHoveredRef.current = true;
@@ -555,7 +555,7 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
 
               <div className="footer-center">
                 {/* Microphone Toggle with Audio Wave */}
-                <button 
+                <button
                   className={`pill-btn ${isMicrophoneEnabled ? '' : 'muted-pill'}`}
                   onClick={() => {
                     if (localParticipant) {
@@ -575,7 +575,7 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
                 </button>
 
                 {/* Camera Toggle */}
-                <button 
+                <button
                   className={`pill-btn ${isCameraEnabled ? '' : 'muted-pill'}`}
                   onClick={() => {
                     if (localParticipant) {
@@ -588,7 +588,7 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
                 </button>
 
                 {/* Closed Captions Button (CC) */}
-                <button 
+                <button
                   className={`pill-btn ${captionsActive ? 'active-pill' : ''}`}
                   onClick={() => setCaptionsActive(!captionsActive)}
                   title="Toggle subtitles (CC)"
@@ -601,8 +601,8 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
                   {showReactions && (
                     <div className="reactions-selector-popover glass-panel">
                       {['👍', '❤️', '👏', '😂', '😮', '🎉'].map(emoji => (
-                        <button 
-                          key={emoji} 
+                        <button
+                          key={emoji}
                           className="reaction-emoji-btn"
                           onClick={() => {
                             triggerReaction(emoji);
@@ -614,7 +614,7 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
                       ))}
                     </div>
                   )}
-                  <button 
+                  <button
                     className={`pill-btn ${showReactions ? 'active-pill' : ''}`}
                     onClick={() => setShowReactions(!showReactions)}
                     title="Send a reaction"
@@ -624,7 +624,7 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
                 </div>
 
                 {/* Screen Share */}
-                <button 
+                <button
                   className={`pill-btn ${isScreenShareEnabled ? 'active-pill' : ''}`}
                   onClick={() => {
                     if (localParticipant) {
@@ -637,7 +637,7 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
                 </button>
 
                 {/* Raise Hand */}
-                <button 
+                <button
                   className={`pill-btn ${handRaised ? 'hand-active-pill' : ''}`}
                   onClick={() => setHandRaised(!handRaised)}
                   title={handRaised ? "Lower hand" : "Raise hand"}
@@ -649,7 +649,7 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
                 <div style={{ position: 'relative' }} ref={moreOptionsRef}>
                   {showMoreOptions && (
                     <div className="more-options-popover glass-panel">
-                      <button 
+                      <button
                         className="more-options-item"
                         onClick={() => {
                           if (!document.fullscreenElement) {
@@ -663,7 +663,7 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
                         <Shapes size={18} />
                         <span>Full Screen</span>
                       </button>
-                      <button 
+                      <button
                         className="more-options-item"
                         onClick={() => {
                           setCaptionsActive(!captionsActive);
@@ -673,7 +673,7 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
                         <Subtitles size={18} />
                         <span>{captionsActive ? 'Disable captions' : 'Enable captions'}</span>
                       </button>
-                      <button 
+                      <button
                         className="more-options-item"
                         onClick={() => {
                           setSidebarOpen(true);
@@ -686,7 +686,7 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
                       </button>
                     </div>
                   )}
-                  <button 
+                  <button
                     className={`pill-btn ${showMoreOptions ? 'active-pill' : ''}`}
                     onClick={() => setShowMoreOptions(!showMoreOptions)}
                     title="More options"
@@ -702,8 +702,8 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
               </div>
 
               <div className="footer-right">
-                <button 
-                  className={`icon-btn-ghost ${sidebarOpen && sidebarTab === 'info' ? 'active' : ''}`} 
+                <button
+                  className={`icon-btn-ghost ${sidebarOpen && sidebarTab === 'info' ? 'active' : ''}`}
                   onClick={() => {
                     if (sidebarOpen && sidebarTab === 'info') {
                       setSidebarOpen(false);
@@ -716,8 +716,8 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
                 >
                   <Info size={20} />
                 </button>
-                <button 
-                  className={`icon-btn-ghost ${sidebarOpen && sidebarTab === 'participants' ? 'active' : ''}`} 
+                <button
+                  className={`icon-btn-ghost ${sidebarOpen && sidebarTab === 'participants' ? 'active' : ''}`}
                   onClick={() => {
                     if (sidebarOpen && sidebarTab === 'participants') {
                       setSidebarOpen(false);
@@ -730,7 +730,7 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
                 >
                   <Users size={20} />
                 </button>
-                <button 
+                <button
                   className={`icon-btn-ghost ${sidebarOpen && sidebarTab === 'chat' ? 'active' : ''}`}
                   onClick={() => {
                     if (sidebarOpen && sidebarTab === 'chat') {
@@ -744,8 +744,8 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
                 >
                   <MessageSquare size={20} />
                 </button>
-                <button 
-                  className={`icon-btn-ghost ${sidebarOpen && sidebarTab === 'activities' ? 'active' : ''}`} 
+                <button
+                  className={`icon-btn-ghost ${sidebarOpen && sidebarTab === 'activities' ? 'active' : ''}`}
                   onClick={() => {
                     if (sidebarOpen && sidebarTab === 'activities') {
                       setSidebarOpen(false);
@@ -758,8 +758,8 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
                 >
                   <Shapes size={20} />
                 </button>
-                <button 
-                  className={`icon-btn-ghost ${sidebarOpen && sidebarTab === 'settings' ? 'active' : ''}`} 
+                <button
+                  className={`icon-btn-ghost ${sidebarOpen && sidebarTab === 'settings' ? 'active' : ''}`}
                   onClick={() => {
                     if (sidebarOpen && sidebarTab === 'settings') {
                       setSidebarOpen(false);
@@ -824,7 +824,7 @@ const WaitingLobby = ({ participantName, photoURL, isHost, admittedPending = fal
   const [micOn, setMicOn] = useState(true);
   const [showEffects, setShowEffects] = useState(false);
   const [activeEffect, setActiveEffect] = useState('none'); // 'none', 'blur', 'background'
-  
+
   const camTrackRef = useRef(null);
   const micTrackRef = useRef(null);
   const mountedRef = useRef(true);
@@ -907,25 +907,25 @@ const WaitingLobby = ({ participantName, photoURL, isHost, admittedPending = fal
                 <p>Camera is off</p>
               </div>
             )}
-            
+
             <div className="preview-overlay-bottom">
               <div className="preview-controls">
-                <button 
-                  className={`preview-btn ${micOn ? '' : 'off'}`} 
+                <button
+                  className={`preview-btn ${micOn ? '' : 'off'}`}
                   onClick={() => setMicOn(!micOn)}
                   title={micOn ? 'Mute' : 'Unmute'}
                 >
                   {micOn ? <Mic size={20} /> : <MicOff size={20} />}
                 </button>
-                <button 
-                  className={`preview-btn ${camOn ? '' : 'off'}`} 
+                <button
+                  className={`preview-btn ${camOn ? '' : 'off'}`}
                   onClick={() => setCamOn(!camOn)}
                   title={camOn ? 'Turn off camera' : 'Turn on camera'}
                 >
                   {camOn ? <Video size={20} /> : <VideoOff size={20} />}
                 </button>
               </div>
-              <button 
+              <button
                 className={`effects-toggle-btn ${showEffects ? 'active' : ''}`}
                 onClick={() => setShowEffects(!showEffects)}
                 title="Apply visual effects"
@@ -957,7 +957,7 @@ const WaitingLobby = ({ participantName, photoURL, isHost, admittedPending = fal
               </div>
             )}
           </div>
-          
+
           <button className="check-audio-btn">
             <Settings size={16} />
             <span>Check your audio and video</span>
@@ -969,10 +969,10 @@ const WaitingLobby = ({ participantName, photoURL, isHost, admittedPending = fal
           <div className="info-content">
             <h1 className="ready-title">Ready to join?</h1>
             <p className="ready-subtitle">No one else is here</p>
-            
+
             <div className="join-actions">
-              <button 
-                className="join-now-btn" 
+              <button
+                className="join-now-btn"
                 disabled={admittedPending}
                 onClick={onJoin}
               >
@@ -989,7 +989,7 @@ const WaitingLobby = ({ participantName, photoURL, isHost, admittedPending = fal
               <button className="option-link"><PhoneOff size={16} /> Use a phone for audio</button>
             </div>
           </div>
-          
+
           {admittedPending && (
             <div className="admit-notification fade-in">
               <div className="pulse-circle"></div>
@@ -998,7 +998,7 @@ const WaitingLobby = ({ participantName, photoURL, isHost, admittedPending = fal
           )}
         </div>
       </div>
-      
+
       {/* Footer / User Badge */}
       <div className="lobby-footer">
         <div className="lobby-user-badge">
@@ -1013,13 +1013,13 @@ const WaitingLobby = ({ participantName, photoURL, isHost, admittedPending = fal
 };
 
 // ─── Gorgeous Meeting Participant Tile ───────────────────────────────────────
-const MeetingParticipantTile = ({ 
-  participant, 
-  isHost, 
-  isActiveSpeaker, 
+const MeetingParticipantTile = ({
+  participant,
+  isHost,
+  isActiveSpeaker,
   handRaised,
-  pinnedTrackSid, 
-  setPinnedTrackSid 
+  pinnedTrackSid,
+  setPinnedTrackSid
 }) => {
   const getMeta = useCallback((p) => {
     try {
@@ -1028,7 +1028,7 @@ const MeetingParticipantTile = ({
   }, []);
 
   const meta = getMeta(participant);
-  
+
   // Hand raised state is checked from either remote sync state or metadata
   const isHandRaised = handRaised;
 
@@ -1046,7 +1046,7 @@ const MeetingParticipantTile = ({
 
   return (
     <div className={`participant-tile-container ${isActiveSpeaker ? 'speaking' : ''}`}>
-      
+
       {/* Hand Raised Badge */}
       {isHandRaised && (
         <div className="tile-hand-raised-badge animate-bounce-subtle">
@@ -1103,7 +1103,7 @@ const MeetingParticipantTile = ({
         </span>
 
         {isHost && <span className="tile-badge host">Host</span>}
-        
+
         {!participant.isMicrophoneEnabled && (
           <span className="tile-mic-status">
             <MicOff size={12} />
@@ -1124,13 +1124,13 @@ const MeetingParticipantTile = ({
 };
 
 // ─── Custom Responsive Video Stage with Speaker & Host Prioritization ───────
-const CustomVideoStage = ({ 
-  pinnedTrackSid, 
-  setPinnedTrackSid, 
-  sidebarOpen, 
-  setSidebarOpen, 
+const CustomVideoStage = ({
+  pinnedTrackSid,
+  setPinnedTrackSid,
+  sidebarOpen,
+  setSidebarOpen,
   handRaised,
-  remoteHandsRaised = {} 
+  remoteHandsRaised = {}
 }) => {
   const room = useRoomContext();
   const remoteParticipants = useParticipants();
@@ -1148,7 +1148,7 @@ const CustomVideoStage = ({
   // Track speakers
   useEffect(() => {
     if (!room) return;
-    
+
     const handleSpeakersChanged = (speakers) => {
       // 1. Update active speakers for glowing borders
       setActiveSpeakerSids(new Set(speakers.map(s => s.sid)));
@@ -1198,9 +1198,9 @@ const CustomVideoStage = ({
   }
 
   // Find host
-  const host = allInMeeting.find(p => getMeta(p).isHost) || 
-               allInMeeting.find(p => p.isLocal && getMeta(p).isHost) || 
-               allInMeeting[0];
+  const host = allInMeeting.find(p => getMeta(p).isHost) ||
+    allInMeeting.find(p => p.isLocal && getMeta(p).isHost) ||
+    allInMeeting[0];
 
   // Select up to 3 recent speakers who are NOT the host
   const otherSelected = [];
@@ -1229,7 +1229,7 @@ const CustomVideoStage = ({
   const finalParticipantsToShow = participantsToShow.slice(0, 4);
 
   // More participants count
-  const participantsInMore = allInMeeting.filter(p => 
+  const participantsInMore = allInMeeting.filter(p =>
     !finalParticipantsToShow.some(x => x.identity === p.identity)
   );
   const moreCount = participantsInMore.length;
@@ -1255,7 +1255,7 @@ const CustomVideoStage = ({
         })}
 
         {moreCount > 0 && (
-          <div 
+          <div
             className="more-participants-tile"
             onClick={() => setSidebarOpen(true)}
             title="Show more participants"
@@ -1299,8 +1299,8 @@ const InfoPanel = ({ roomName, participantName }) => {
 
   // Find the host/admin name
   const allInMeeting = [localParticipant, ...remoteParticipants].filter(p => p && !getMeta(p).isWaiting);
-  const hostParticipant = allInMeeting.find(p => getMeta(p).isHost) || 
-                          allInMeeting.find(p => p.isLocal && getMeta(p).isHost);
+  const hostParticipant = allInMeeting.find(p => getMeta(p).isHost) ||
+    allInMeeting.find(p => p.isLocal && getMeta(p).isHost);
   const adminName = hostParticipant?.name || hostParticipant?.identity || (getMeta(localParticipant).isHost ? participantName : "Admin");
 
   return (
@@ -1377,17 +1377,17 @@ const Whiteboard = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    
+
     const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width * 2;
     canvas.height = 360 * 2;
     ctx.scale(2, 2);
-    
+
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.strokeStyle = color;
     ctx.lineWidth = brushSize;
-    
+
     // Draw grid blueprint lines
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
     ctx.lineWidth = 1;
@@ -1404,7 +1404,7 @@ const Whiteboard = () => {
       ctx.lineTo(rect.width, y);
       ctx.stroke();
     }
-    
+
     ctx.strokeStyle = color;
     ctx.lineWidth = brushSize;
   }, []);
@@ -1421,14 +1421,14 @@ const Whiteboard = () => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
     const rect = canvas.getBoundingClientRect();
-    
+
     if (e.touches && e.touches.length > 0) {
       return {
         x: e.touches[0].clientX - rect.left,
         y: e.touches[0].clientY - rect.top
       };
     }
-    
+
     return {
       x: e.clientX - rect.left,
       y: e.clientY - rect.top
@@ -1440,7 +1440,7 @@ const Whiteboard = () => {
     const pos = getCoordinates(e);
     setIsDrawing(true);
     setLastPos(pos);
-    
+
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -1459,12 +1459,12 @@ const Whiteboard = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    
+
     ctx.beginPath();
     ctx.moveTo(lastPos.x, lastPos.y);
     ctx.lineTo(pos.x, pos.y);
     ctx.stroke();
-    
+
     setLastPos(pos);
   };
 
@@ -1478,7 +1478,7 @@ const Whiteboard = () => {
     const ctx = canvas.getContext('2d');
     const rect = canvas.getBoundingClientRect();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
     ctx.lineWidth = 1;
     const gridSpacing = 20;
@@ -1494,7 +1494,7 @@ const Whiteboard = () => {
       ctx.lineTo(rect.width, y);
       ctx.stroke();
     }
-    
+
     ctx.strokeStyle = color;
     ctx.lineWidth = brushSize;
   };
@@ -1614,7 +1614,7 @@ const PollsSection = () => {
       <div className="poll-card glass-panel">
         <h4 className="poll-question">{title}</h4>
         <p className="poll-meta">{totalVotes} votes • Active</p>
-        
+
         {userVote === null ? (
           <div className="poll-vote-options">
             {options.map((opt, idx) => (
@@ -1729,9 +1729,9 @@ const ActivitiesPanel = () => {
   );
 };
 
-const Sidebar = ({ 
-  isOpen, onClose, room, getMeta, 
-  pinnedTrackSid, setPinnedTrackSid, 
+const Sidebar = ({
+  isOpen, onClose, room, getMeta,
+  pinnedTrackSid, setPinnedTrackSid,
   onAdmitParticipant, onDenyParticipant,
   messages, pinnedMessage, onSendMessage, onPinMessage,
   activeTab, setActiveTab,
@@ -1744,7 +1744,7 @@ const Sidebar = ({
   const inMeeting = participants.filter(p => {
     try { return !JSON.parse(p.metadata || '{}').isWaiting; } catch { return true; }
   });
-  
+
   const waiting = participants.filter(p => {
     try { return JSON.parse(p.metadata || '{}').isWaiting; } catch { return false; }
   });
@@ -1760,39 +1760,39 @@ const Sidebar = ({
       <div className="sidebar-header">
         <h2 className="sidebar-title">
           {activeTab === 'info' ? 'Meeting Info' :
-           activeTab === 'participants' ? 'People' :
-           activeTab === 'chat' ? 'Chat' :
-           activeTab === 'activities' ? 'Activities' : 'Host controls'}
+            activeTab === 'participants' ? 'People' :
+              activeTab === 'chat' ? 'Chat' :
+                activeTab === 'activities' ? 'Activities' : 'Host controls'}
         </h2>
         <button className="sidebar-close" onClick={onClose}><X size={20} /></button>
       </div>
 
       <div className="sidebar-tabs-minimal">
-        <button 
+        <button
           className={`tab-link ${activeTab === 'info' ? 'active' : ''}`}
           onClick={() => setActiveTab('info')}
         >
           Info
         </button>
-        <button 
+        <button
           className={`tab-link ${activeTab === 'participants' ? 'active' : ''}`}
           onClick={() => setActiveTab('participants')}
         >
           People
         </button>
-        <button 
+        <button
           className={`tab-link ${activeTab === 'chat' ? 'active' : ''}`}
           onClick={() => setActiveTab('chat')}
         >
           Chat
         </button>
-        <button 
+        <button
           className={`tab-link ${activeTab === 'activities' ? 'active' : ''}`}
           onClick={() => setActiveTab('activities')}
         >
           Activities
         </button>
-        <button 
+        <button
           className={`tab-link ${activeTab === 'settings' ? 'active' : ''}`}
           onClick={() => setActiveTab('settings')}
         >
@@ -1818,7 +1818,7 @@ const Sidebar = ({
 
             <div className="participant-group">
               <div className="group-label">IN THE MEETING</div>
-              
+
               {inMeeting.map((p) => {
                 const role = getRole(p);
                 const isPinned = pinnedTrackSid?.startsWith(p.sid);
@@ -1839,7 +1839,7 @@ const Sidebar = ({
                     <div className="p-icons">
                       {!p.isMicrophoneEnabled && <MicOff size={16} color="var(--accent-red)" />}
                       {!p.isCameraEnabled && <VideoOff size={16} color="var(--accent-red)" />}
-                      <button 
+                      <button
                         className={`p-icon-btn ${isPinned ? 'active' : ''}`}
                         onClick={() => {
                           const trackId = `${p.sid}-${Track.Source.Camera}`;
@@ -1880,10 +1880,10 @@ const Sidebar = ({
           </div>
         )}
         {activeTab === 'chat' && (
-          <ChatPanel 
-            messages={messages} 
+          <ChatPanel
+            messages={messages}
             pinnedMessage={pinnedMessage}
-            onSendMessage={onSendMessage} 
+            onSendMessage={onSendMessage}
             onPinMessage={onPinMessage}
             isHost={isHost}
           />
@@ -1944,9 +1944,9 @@ const ChatPanel = ({ messages, pinnedMessage, onSendMessage, onPinMessage, isHos
         ))}
       </div>
       <form className="chat-input-form" onSubmit={handleSubmit}>
-        <input 
-          type="text" 
-          placeholder="Send a message to everyone" 
+        <input
+          type="text"
+          placeholder="Send a message to everyone"
           value={input}
           onChange={(e) => setInput(e.target.value)}
         />
@@ -1976,13 +1976,13 @@ const HostSettings = ({ room }) => {
     <div className="host-settings">
       <h3>Meeting Settings</h3>
       <p className="settings-desc">Manage your meeting preferences and controls.</p>
-      
+
       <div className="settings-toggle">
         <div className="toggle-info">
           <strong>Visual Theme</strong>
           <span>Toggle between Light and Dark mode</span>
         </div>
-        <select 
+        <select
           value={theme}
           onChange={handleThemeChange}
           className="premium-select"
