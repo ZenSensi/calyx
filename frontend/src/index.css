@@ -29,6 +29,10 @@
   --text-rgb: 15, 23, 42;
   --bg-rgb: 248, 250, 252;
 
+  --bg-body-start: #f8fafc;
+  --bg-body-mid: #f1f5f9;
+  --bg-body-end: #e2e8f0;
+
   --border-radius-lg: 24px;
   --border-radius-md: 16px;
   --border-radius-sm: 10px;
@@ -62,6 +66,10 @@
   --text-rgb: 248, 250, 252;
   --bg-rgb: 3, 4, 8;
 
+  --bg-body-start: #010307;
+  --bg-body-mid: #061028;
+  --bg-body-end: #010307;
+
   --border-radius-lg: 24px;
   --border-radius-md: 16px;
   --border-radius-sm: 10px;
@@ -79,8 +87,8 @@
 
 body {
   font-family: var(--font-family);
-  background-color: #010307;
-  background-image: linear-gradient(135deg, #010307 0%, #061028 50%, #010307 100%);
+  background-color: var(--bg-body-start);
+  background-image: linear-gradient(135deg, var(--bg-body-start) 0%, var(--bg-body-mid) 50%, var(--bg-body-end) 100%);
   background-attachment: fixed;
   color: var(--text-primary);
   min-height: 100vh;
@@ -88,6 +96,7 @@ body {
   overflow-x: hidden;
   overflow-y: auto;
   position: relative;
+  transition: background-color 0.3s ease, background-image 0.3s ease, color 0.3s ease;
 }
 
 .dark-theme body {
@@ -469,8 +478,8 @@ button,
     border-color: var(--border-color);
   }
   body {
-    background-color: #010307;
-    background-image: linear-gradient(135deg, #010307 0%, #061028 50%, #010307 100%);
+    background-color: var(--bg-body-start);
+    background-image: linear-gradient(135deg, var(--bg-body-start) 0%, var(--bg-body-mid) 50%, var(--bg-body-end) 100%);
     background-attachment: fixed;
     color: var(--text-primary);
   }

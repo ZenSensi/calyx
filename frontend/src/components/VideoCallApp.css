@@ -2196,7 +2196,7 @@
 .premium-select {
   padding: 8px 12px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--bg-panel-light);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
   font-size: 13px;
@@ -2208,14 +2208,19 @@
 }
 
 .premium-select:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(var(--text-rgb), 0.06);
+  border-color: rgba(var(--text-rgb), 0.15);
 }
 
 .premium-select:focus {
   border-color: var(--primary-indigo);
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(var(--text-rgb), 0.08);
   box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.premium-select option {
+  background: var(--bg-dark);
+  color: var(--text-primary);
 }
 
 /* Premium Toggle Switch */
