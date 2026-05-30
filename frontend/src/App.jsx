@@ -4,7 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import RoomConnection from './components/RoomConnection';
 import VideoCallApp from './components/VideoCallApp';
 import MeetingOver from './components/MeetingOver';
-import PrivacyPolicy from './components/PrivacyPolicy';
+import LegalInfo from './components/LegalInfo';
 import ErrorBoundary from './components/ErrorBoundary';
 import Login from './components/Login';
 import Register from './components/Register';
@@ -75,7 +75,7 @@ function App() {
             <Route path="/" element={<RoomConnection />} />
             <Route path="/room/:roomName" element={<VideoCallApp />} />
             <Route path="/meeting-over" element={<MeetingOver />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/privacy-policy" element={<LegalInfo />} />
           </Routes>
         </Router>
       </AuthProvider>

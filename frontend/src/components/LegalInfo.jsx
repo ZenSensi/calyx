@@ -2,9 +2,9 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Shield, Lock, Eye, FileText, Globe } from 'lucide-react';
 import Footer from './Footer';
-import './PrivacyPolicy.css';
+import './LegalInfo.css';
 
-const PrivacyPolicy = () => {
+const LegalInfo = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -102,4 +102,4 @@ const PrivacyPolicy = () => {
   );
 };
 
-export default PrivacyPolicy;
+export default LegalInfo;

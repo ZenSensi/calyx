@@ -11,16 +11,26 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      console.warn("Firebase auth initialization timed out. Falling back to Guest state.");
+      setLoading(false);
+    }, 2000);
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
+      clearTimeout(timer);
       setCurrentUser(user);
       setLoading(false);
     });
 
-    return unsubscribe;
+    return () => {
+      clearTimeout(timer);
+      unsubscribe();
+    };
   }, []);
 
   const value = {
     currentUser,
+    loading,
   };
 
   return (
