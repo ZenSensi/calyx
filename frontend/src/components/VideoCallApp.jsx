@@ -1768,39 +1768,7 @@ const Sidebar = ({
         </h2>
         <button className="sidebar-close" onClick={onClose}><X size={20} /></button>
       </div>
-
-      <div className="sidebar-tabs-minimal">
-        <button
-          className={`tab-link ${activeTab === 'info' ? 'active' : ''}`}
-          onClick={() => setActiveTab('info')}
-        >
-          Info
-        </button>
-        <button
-          className={`tab-link ${activeTab === 'participants' ? 'active' : ''}`}
-          onClick={() => setActiveTab('participants')}
-        >
-          People
-        </button>
-        <button
-          className={`tab-link ${activeTab === 'chat' ? 'active' : ''}`}
-          onClick={() => setActiveTab('chat')}
-        >
-          Chat
-        </button>
-        <button
-          className={`tab-link ${activeTab === 'activities' ? 'active' : ''}`}
-          onClick={() => setActiveTab('activities')}
-        >
-          Activities
-        </button>
-        <button
-          className={`tab-link ${activeTab === 'settings' ? 'active' : ''}`}
-          onClick={() => setActiveTab('settings')}
-        >
-          Host Controls
-        </button>
-      </div>
+      
 
       <div className="sidebar-content">
         {activeTab === 'info' && (
