@@ -1,9 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
 @import "@fontsource-variable/geist";
 
+/* stylelint-disable at-rule-no-unknown */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* stylelint-enable at-rule-no-unknown */
+
+::selection {
+  background-color: var(--primary-indigo);
+  color: white;
+}
 
 :root {
   /* Premium Calyx Design System Light Theme */
@@ -13,7 +20,7 @@
   --accent-indigo-glow: rgba(79, 70, 229, 0.1);
 
   --bg-dark: #f8fafc;
-  --bg-panel: rgba(var(--text-rgb), 0.75);
+  --bg-panel: rgba(255, 255, 255, 0.75);
   --bg-panel-light: rgba(15, 23, 42, 0.03);
   --border-color: rgba(15, 23, 42, 0.08);
 
@@ -22,9 +29,9 @@
   --accent-red: #ef4444;
   --accent-teal-glow: rgba(8, 145, 178, 0.1);
 
-  --glass-bg: rgba(var(--text-rgb), 0.7);
+  --glass-bg: rgba(255, 255, 255, 0.75);
   --glass-blur: blur(24px);
-  --glass-border: 1px solid rgba(15, 23, 42, 0.08);
+  --glass-border: 1px solid rgba(15, 23, 42, 0.06);
 
   --text-rgb: 15, 23, 42;
   --bg-rgb: 248, 250, 252;
@@ -40,6 +47,9 @@
   --font-family: 'Outfit', 'Inter', -apple-system, sans-serif;
   --google-blue: var(--primary-indigo);
   --google-blue-hover: var(--primary-indigo-hover);
+
+  --card-shadow-opacity: 0.06;
+  --card-inner-glow-opacity: 0.15;
 }
 
 :root.dark {
@@ -77,6 +87,9 @@
   --font-family: 'Outfit', 'Inter', -apple-system, sans-serif;
   --google-blue: var(--primary-indigo);
   --google-blue-hover: var(--primary-indigo-hover);
+
+  --card-shadow-opacity: 0.4;
+  --card-inner-glow-opacity: 0.05;
 }
 
 * {
@@ -107,7 +120,7 @@ body {
 .bg-tech-grid {
   position: fixed;
   inset: 0;
-  background-image: 
+  background-image:
     linear-gradient(rgba(var(--text-rgb), 0.012) 1px, transparent 1px),
     linear-gradient(90deg, rgba(var(--text-rgb), 0.012) 1px, transparent 1px);
   background-size: 60px 60px;
@@ -127,7 +140,7 @@ body {
   position: absolute;
   border-radius: 50%;
   filter: blur(120px);
-  opacity: 0.4;
+  opacity: 0.12;
   animation: floatGlow 15s infinite alternate ease-in-out;
 }
 
@@ -159,7 +172,7 @@ body {
   transform: translate(-50%, -50%);
   animation-duration: 30s;
   animation-delay: -10s;
-  opacity: 0.15;
+  opacity: 0.06;
 }
 
 /* Scoped Dark Theme Glow Spot Customizations for premium developer look */
@@ -197,9 +210,11 @@ body {
   0% {
     transform: translate(0, 0) scale(1);
   }
+
   50% {
     transform: translate(80px, 40px) scale(1.1);
   }
+
   100% {
     transform: translate(-40px, -60px) scale(0.9);
   }
@@ -335,12 +350,12 @@ button,
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border: var(--glass-border);
-  box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, var(--card-shadow-opacity, 0.06));
   border-radius: var(--border-radius-lg);
 }
 
 .dark .glass-panel {
-  box-shadow: 0 30px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(var(--text-rgb), 0.05);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, var(--card-shadow-opacity, 0.4)), inset 0 1px 0 rgba(var(--text-rgb), var(--card-inner-glow-opacity, 0.05));
 }
 
 /* Double Border Accent Ring for highly visual boxes */
@@ -364,7 +379,9 @@ button,
 }
 
 @keyframes rotateGlowBorder {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .glow-border-inner {
@@ -388,25 +405,45 @@ button,
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes scaleUp {
-  from { opacity: 0; transform: scale(0.92) translateY(10px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 @keyframes slideIn {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Typography Gradient helper */
 .gradient-text {
   background: linear-gradient(135deg, var(--primary-indigo) 0%, var(--accent-teal) 50%, #a855f7 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  background-clip: text;
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
 }
 
 /* Scrollbar styling */
@@ -433,6 +470,7 @@ button,
     --font-heading: var(--font-sans);
     --font-sans: 'Outfit', 'Inter', sans-serif;
   }
+
   :root {
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
@@ -454,6 +492,7 @@ button,
     --ring: oklch(0.708 0 0);
     --radius: 0.625rem;
   }
+
   .dark {
     --background: oklch(0.145 0 0);
     --foreground: oklch(0.985 0 0);
@@ -474,9 +513,11 @@ button,
     --input: oklch(1 0 0 / 15%);
     --ring: oklch(0.556 0 0);
   }
+
   * {
     border-color: var(--border-color);
   }
+
   body {
     background-color: var(--bg-body-start);
     background-image: linear-gradient(135deg, var(--bg-body-start) 0%, var(--bg-body-mid) 50%, var(--bg-body-end) 100%);
