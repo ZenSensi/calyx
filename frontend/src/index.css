@@ -100,8 +100,8 @@
 
 body {
   font-family: var(--font-family);
-  background-color: var(--bg-body-start);
-  background-image: linear-gradient(135deg, var(--bg-body-start) 0%, var(--bg-body-mid) 50%, var(--bg-body-end) 100%);
+  background-color: var(--bg-body-start) !important;
+  background-image: linear-gradient(135deg, var(--bg-body-start) 0%, var(--bg-body-mid) 50%, var(--bg-body-end) 100%) !important;
   background-attachment: fixed;
   color: var(--text-primary);
   min-height: 100vh;
@@ -516,8 +516,8 @@ button,
   }
 
   body {
-    background-color: var(--bg-body-start);
-    background-image: linear-gradient(135deg, var(--bg-body-start) 0%, var(--bg-body-mid) 50%, var(--bg-body-end) 100%);
+    background-color: var(--bg-body-start) !important;
+    background-image: linear-gradient(135deg, var(--bg-body-start) 0%, var(--bg-body-mid) 50%, var(--bg-body-end) 100%) !important;
     background-attachment: fixed;
     color: var(--text-primary);
   }
