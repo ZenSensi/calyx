@@ -439,8 +439,8 @@ button,
 .gradient-text {
   background: linear-gradient(135deg, var(--primary-indigo) 0%, var(--accent-teal) 50%, #a855f7 100%);
   background-clip: text;
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* Scrollbar styling */
