@@ -1768,7 +1768,7 @@ const Sidebar = ({
         </h2>
         <button className="sidebar-close" onClick={onClose}><X size={20} /></button>
       </div>
-      
+
 
       <div className="sidebar-content">
         {activeTab === 'info' && (

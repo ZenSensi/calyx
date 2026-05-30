@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { LogIn, Mail, Video } from 'lucide-react';
 import { signInWithEmailAndPassword, signInWithPopup, signInWithRedirect } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
@@ -21,6 +21,8 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showEmailAuth, setShowEmailAuth] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirect = searchParams.get('redirect') || '/';
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -29,7 +31,7 @@ const Login = () => {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate('/');
+      navigate(redirect);
     } catch (err) {
       setError('Failed to log in. Please check your credentials.');
       console.error(err);
@@ -43,7 +45,7 @@ const Login = () => {
     setIsLoading(true);
     try {
       await signInWithPopup(auth, googleProvider);
-      navigate('/');
+      navigate(redirect);
     } catch (err) {
       console.error('Google popup sign-in error:', err);
       // Fallback for pop-up blockers or COOP restrictions
@@ -138,7 +140,7 @@ const Login = () => {
           )}
 
           <div className="auth-footer">
-            Don't have an account? <Link to="/register" className="auth-link">Sign up</Link>
+            Don't have an account? <Link to={`/register?redirect=${encodeURIComponent(redirect)}`} className="auth-link">Sign up</Link>
           </div>
         </div>
       </div>

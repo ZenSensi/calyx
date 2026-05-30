@@ -24,7 +24,8 @@ const ProtectedRoute = ({ children }) => {
   }
   
   if (!currentUser) {
-    return <Navigate to="/login" replace />;
+    const target = window.location.pathname + window.location.search;
+    return <Navigate to={`/login?redirect=${encodeURIComponent(target)}`} replace />;
   }
   
   return children;
@@ -72,9 +73,21 @@ function App() {
                 <Register />
               </PublicOnlyRoute>
             } />
-            <Route path="/" element={<RoomConnection />} />
-            <Route path="/room/:roomName" element={<VideoCallApp />} />
-            <Route path="/meeting-over" element={<MeetingOver />} />
+            <Route path="/" element={
+              <ProtectedRoute>
+                <RoomConnection />
+              </ProtectedRoute>
+            } />
+            <Route path="/room/:roomName" element={
+              <ProtectedRoute>
+                <VideoCallApp />
+              </ProtectedRoute>
+            } />
+            <Route path="/meeting-over" element={
+              <ProtectedRoute>
+                <MeetingOver />
+              </ProtectedRoute>
+            } />
             <Route path="/privacy-policy" element={<LegalInfo />} />
           </Routes>
         </Router>
