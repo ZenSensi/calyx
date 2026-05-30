@@ -6,7 +6,7 @@
 
   height: 100vh;
   width: 100vw;
-  background: transparent;
+  background: transparent !important;
   font-family: var(--font-family);
   color: var(--text-primary);
 }
@@ -455,7 +455,7 @@
 
 .video-stage {
   flex: 1;
-  background: rgba(1, 3, 7, 0.35);
+  background: var(--bg-panel-light);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-radius: 12px;
@@ -471,7 +471,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0 24px;
-  background: rgba(1, 3, 7, 0.45);
+  background: var(--bg-panel);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid var(--border-color);
