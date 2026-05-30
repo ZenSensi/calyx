@@ -6,8 +6,11 @@ const { AccessToken, RoomServiceClient } = require('livekit-server-sdk');
 const app = express();
 const port = process.env.PORT || 3000;
 
+const livekitUrl = (process.env.LIVEKIT_URL || 'https://calyx-meet-dps7lskv.livekit.cloud')
+  .replace(/^ws(s)?:\/\//, 'http$1://');
+
 const svc = new RoomServiceClient(
-  process.env.LIVEKIT_URL || 'https://calyx-meet-dps7lskv.livekit.cloud',
+  livekitUrl,
   process.env.LIVEKIT_API_KEY,
   process.env.LIVEKIT_API_SECRET
 );

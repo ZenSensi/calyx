@@ -89,26 +89,6 @@ const VideoCallApp = () => {
     }
   }, [roomName, participantName, isWaiting, fetchToken, navigate, token]);
 
-  // When admitted, fetch a full (canPublish: true) token before showing the meeting UI
-  useEffect(() => {
-    if (admitted && isWaiting && tokenReady && token) {
-      // Check if the current token already has permissions (isWaiting metadata)
-      // This is a bit complex to check from JWT client-side without decoding,
-      // but we can rely on our admitted state logic.
-      // We only want to fetch the new token ONCE when admitted changes from false to true.
-    }
-  }, [admitted, isWaiting, tokenReady, token]);
-
-  // Handle admission transition specifically
-  const lastAdmittedRef = useRef(admitted);
-  useEffect(() => {
-    if (admitted && !lastAdmittedRef.current && isWaiting) {
-      console.log('[VideoCallApp] User just admitted, fetching full token...');
-      fetchToken(false);
-    }
-    lastAdmittedRef.current = admitted;
-  }, [admitted, isWaiting, fetchToken]);
-
   if (!token) {
     return (
       <div className="loading-screen" style={{
@@ -131,8 +111,8 @@ const VideoCallApp = () => {
   return (
     <LiveKitRoom
       key={roomName}
-      video={admitted}
-      audio={admitted}
+      video={false}
+      audio={false}
       token={token}
       serverUrl={import.meta.env.VITE_LIVEKIT_URL}
       data-lk-theme="default"
@@ -163,6 +143,12 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const photoURL = currentUser?.photoURL || null;
+
+  const [searchParams] = useSearchParams();
+  const camOnParam = searchParams.get('camOn') !== 'false';
+  const micOnParam = searchParams.get('micOn') !== 'false';
+  const [initialCamOn, setInitialCamOn] = useState(camOnParam);
+  const [initialMicOn, setInitialMicOn] = useState(micOnParam);
 
   const getMeta = useCallback((p) => {
     try {
@@ -251,6 +237,21 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
   }, []);
 
   const { localParticipant, isMicrophoneEnabled, isCameraEnabled, isScreenShareEnabled } = useLocalParticipant();
+
+  // Automatically publish camera and mic when admitted and connected
+  const hasPublishedRef = useRef(false);
+  useEffect(() => {
+    if (admitted && localParticipant && !hasPublishedRef.current) {
+      hasPublishedRef.current = true;
+      console.log('[MeetingRoom] Admitted! Activating selected media devices...', { initialCamOn, initialMicOn });
+      if (initialCamOn) {
+        localParticipant.setCameraEnabled(true).catch(err => console.error('Failed to enable camera:', err));
+      }
+      if (initialMicOn) {
+        localParticipant.setMicrophoneEnabled(true).catch(err => console.error('Failed to enable mic:', err));
+      }
+    }
+  }, [admitted, localParticipant, initialCamOn, initialMicOn]);
 
   // ── Mock Subtitles Cycle ───────────────────────────────────────────────────
   useEffect(() => {
@@ -441,7 +442,6 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
 
-      {/* ── Full-Screen Waiting Lobby ──────────────────────────────────────────── */}
       {isWaiting && !admitted && !denied && (
         <WaitingLobby
           participantName={participantName}
@@ -455,6 +455,10 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
               setAdmittedPending(true);
             }
           }}
+          camOn={initialCamOn}
+          setCamOn={setInitialCamOn}
+          micOn={initialMicOn}
+          setMicOn={setInitialMicOn}
         />
       )}
 
@@ -817,11 +821,9 @@ const MeetingRoom = ({ roomName, participantName, isHost, isWaiting, admitted, a
 
 
 // ─── Waiting Lobby (High Fidelity Google Meet style) ──────────────────────────
-const WaitingLobby = ({ participantName, photoURL, isHost, admittedPending = false, onJoin }) => {
+const WaitingLobby = ({ participantName, photoURL, isHost, admittedPending = false, onJoin, camOn, setCamOn, micOn, setMicOn }) => {
   const videoRef = useRef(null);
   const [dots, setDots] = useState('');
-  const [camOn, setCamOn] = useState(true);
-  const [micOn, setMicOn] = useState(true);
   const [showEffects, setShowEffects] = useState(false);
   const [activeEffect, setActiveEffect] = useState('none'); // 'none', 'blur', 'background'
 
@@ -850,7 +852,7 @@ const WaitingLobby = ({ participantName, photoURL, isHost, admittedPending = fal
   }, [activeEffect]);
 
   useEffect(() => {
-    if (camOn) {
+    if (camOn && !admittedPending) {
       if (camTrackRef.current) {
         if (videoRef.current) camTrackRef.current.attach(videoRef.current);
         return;
@@ -870,10 +872,10 @@ const WaitingLobby = ({ participantName, photoURL, isHost, admittedPending = fal
     } else {
       if (camTrackRef.current) { camTrackRef.current.stop(); camTrackRef.current = null; }
     }
-  }, [camOn]);
+  }, [camOn, admittedPending, activeEffect]);
 
   useEffect(() => {
-    if (micOn) {
+    if (micOn && !admittedPending) {
       if (micTrackRef.current) return;
       createLocalAudioTrack().then((track) => {
         if (!mountedRef.current) { track.stop(); return; }
@@ -882,7 +884,7 @@ const WaitingLobby = ({ participantName, photoURL, isHost, admittedPending = fal
     } else {
       if (micTrackRef.current) { micTrackRef.current.stop(); micTrackRef.current = null; }
     }
-  }, [micOn]);
+  }, [micOn, admittedPending]);
 
   useEffect(() => {
     const interval = setInterval(() => {

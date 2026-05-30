@@ -51,6 +51,13 @@ const RoomConnection = () => {
   const [toastMessage, setToastMessage] = useState('');
   const [copiedLink, setCopiedLink] = useState(false);
 
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage('');
+    }, 3000);
+  };
+
   // Camera & Microphone preview states
   const [isCameraOn, setIsCameraOn] = useState(false);
   const [isMicOn, setIsMicOn] = useState(false);
@@ -175,7 +182,7 @@ const RoomConnection = () => {
     const randomRoomId = Math.random().toString(36).substring(2, 11);
     localStorage.setItem('last-room-name', randomRoomId);
     localStorage.setItem('last-participant-name', participantName);
-    navigate(`/room/${randomRoomId}?name=${encodeURIComponent(participantName)}&isHost=true`);
+    navigate(`/room/${randomRoomId}?name=${encodeURIComponent(participantName)}&isHost=true&camOn=${isCameraOn}&micOn=${isMicOn}`);
   };
 
   const handleJoinSubmit = (e) => {
@@ -188,7 +195,7 @@ const RoomConnection = () => {
       }
       localStorage.setItem('last-room-name', code);
       localStorage.setItem('last-participant-name', participantName);
-      navigate(`/room/${code}?name=${encodeURIComponent(participantName)}`);
+      navigate(`/room/${code}?name=${encodeURIComponent(participantName)}&camOn=${isCameraOn}&micOn=${isMicOn}`);
     }
   };
 
@@ -201,12 +208,7 @@ const RoomConnection = () => {
     }
   };
 
-  const showToast = (msg) => {
-    setToastMessage(msg);
-    setTimeout(() => {
-      setToastMessage('');
-    }, 3000);
-  };
+
 
   const generateLaterLink = () => {
     const randomId = Math.random().toString(36).substring(2, 11);
@@ -552,7 +554,7 @@ const RoomConnection = () => {
                         </button>
                         <button 
                           className="btn-join-scheduled" 
-                          onClick={() => navigate(`/room/${meeting.id}?name=${encodeURIComponent(participantName)}`)}
+                          onClick={() => navigate(`/room/${meeting.id}?name=${encodeURIComponent(participantName)}&camOn=${isCameraOn}&micOn=${isMicOn}`)}
                         >
                           Join
                         </button>
